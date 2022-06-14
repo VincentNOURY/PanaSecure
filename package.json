@@ -1,0 +1,23 @@
+{
+  "name": "panasecure",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "test": "nodemon app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/VincentNOURY/Panasecure.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/VincentNOURY/Panasecure/issues"
+  },
+  "homepage": "https://github.com/VincentNOURY/Panasecure#readme",
+  "dependencies": {
+    "express": "^4.18.1",
+    "nodemon": "^2.0.16"
+  }
+}
