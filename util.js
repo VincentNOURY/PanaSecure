@@ -4,15 +4,15 @@ function getSessionsSecret(){
 }
 
 function verify(username, password){
-    return JSON.parse(fs.readFileSync("data/accounts.json"))[username] == password
+    return JSON.parse(fs.readFileSync("data/accounts.json"))[username].password == password
 }
 
-function addUser(username, password){
+function addUser(username, data){
     let users = JSON.parse(fs.readFileSync("data/accounts.json"))
-    if (! users.includes(username)){
-        users.username = password
+    if (! Object.keys(users).includes(username)){
+        users[username] = data
     }
-    fs.writeFile("data/accounts.json", users, (err) => {if (err) throw err})
+    fs.writeFile("data/accounts.json", JSON.stringify(users), (err) => {if (err) throw err})
 }
 
 module.exports = {getSessionsSecret, verify, addUser}

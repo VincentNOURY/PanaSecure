@@ -5,21 +5,22 @@ const util = require('./util')
 const sessions = require('express-session')
 const cookieParser = require('cookie-parser')
 
-app.use(cookieParser())
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-const oneWeek = 1000 * 60 * 60 * 24 * 7
+app.use(cookieParser())
+app.set('view engine', 'ejs')
+
 app.use(sessions({
     secret: util.getSessionsSecret(),
-    saveUninitialized:true,
-    cookie: { maxAge: oneWeek },
-    resave: false 
+    saveUninitialized: true,
+    resave: true 
 }))
 
 var session
 
 app.get('/', (req, res) => {
-    session = req.session
-    res.send('attend l\'html')
+    res.send(req.session)
 })
 
 app.get('/login', (req, res) => {
@@ -27,39 +28,56 @@ app.get('/login', (req, res) => {
     if (req.query.error){
         // To handle
     }
+    console.log(req.session)
+    console.log(session)
 
-    if (req.body){
-        let username = req.body.username
-        let password = req.body.hashed
+    if (req.session && Object.keys(req.session).includes('userid')){
+        
+        return res.redirect('/')
+    }
+
+    if (req.query){
+        let username = req.query.username
+        let password = req.query.password
 
         if (username && password && util.verify(username, password)){
             session = req.session
             session.userid = username
-            res.redirect('/')
+            return res.redirect('/')
         }
         if (username || password)
         {
-            res.redirect('/login?error=true')
+            return res.redirect('/login?error=true')
         }
     }
 
-    //res.render(template)
-    res.send('test')
+    res.render("pages/login")
 })
 
 app.get('/signup', (req, res) => {
-    if (req.body){
-        util.addUser(req.body.username, req.body.password)
-        res.redirect('/login')
+    if (["firstname", "name", "username", "email", "password", "passwordconfirm"].every(el => Object.keys(req.query).includes(el))){
+        let username = req.query.username
+        delete req.query['username']
+        delete req.query['passwordconfirm']
+        if (req.query.password == req.query.passwordconfirm){
+            util.addUser(username, req.query)
+            return res.redirect('/login')
+        }
+        return res.redirect('/signup')
+        
     }
-    //res.render()
-    res.send('test@')
+    res.render('pages/sign_up')
 })
 
-app.get('/logout', (req, res) => {
+app.get('/logout',(req, res) => {
     req.session.destroy()
+    req.session = null
+    console.log(req.session)
+    delete session
+    console.log(session)
     res.redirect('/')
-})
+
+  })
 
 app.listen(port, () => {
     console.log(`Listening on port ${port}`)
