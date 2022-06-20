@@ -1,4 +1,7 @@
 const fs = require('fs')
+const forge = require('node-forge')
+
+
 function getSessionsSecret(){
     return JSON.parse(fs.readFileSync("config/config.json")).sessions_secret
 }
@@ -16,3 +19,48 @@ function addUser(username, data){
 }
 
 module.exports = {getSessionsSecret, verify, addUser}
+
+// generate an RSA key pair asynchronously
+function RSA_generateKeyPair() {
+    var rsa = forge.pki.rsa
+    var keypair = rsa.generateKeyPair({bits: 2048, workers: 2}, function(err, keypair) {
+        // keypair.privateKey, keypair.publicKey
+    });
+    return keypair
+}
+
+function RSA_encrypt(plaintext, publicKey) {
+    var ciphertext = publicKey.encrypt(plaintext);
+    return ciphertext
+}
+
+function RSA_decrypt(ciphertext, privateKey) {
+    var plaintext = privateKey.decrypt(ciphertext);
+    return plaintext
+}
+
+function AES_generateKey() {
+    var key = forge.random.getBytesSync(16);
+    var iv = forge.random.getBytesSync(16);
+    return ({key, iv})
+}
+
+function AES_encrypt(plaintext, key, iv) {
+    var cipher = forge.cipher.createCipher('AES-CBC', key);
+    cipher.start({iv: iv});
+    cipher.update(forge.util.createBuffer(plaintext));
+    cipher.finish();
+
+    var ciphertext = cipher.output;
+    return ciphertext
+}
+
+function AES_decrypt(ciphertext, key, iv) {
+    var decipher = forge.cipher.createDecipher('AES-CBC', key);
+    decipher.start({iv: iv});
+    decipher.update(ciphertext);
+    var result = decipher.finish(); // check 'result' for true/false
+
+    var plaintext = decipher.output;
+    return plaintext
+}
