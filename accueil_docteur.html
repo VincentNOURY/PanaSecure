@@ -1,0 +1,109 @@
+<html>
+    
+        <link rel="javascript" href="fichier.js" />
+    
+
+    <body>
+        <div class="fichiers">
+            <h3>Liste des fichiers existants </h3>
+
+
+            <ul>
+                <li>
+                    <a href="#">Ordonnance 20/07</a></li>
+                <li>
+                    <a href="#">Prise de sang 27/07</a></li>
+                <li>
+                    <a href="#">Ordonnance 30/07</a></li>
+                <li>
+                    <a href="#">Radio genou</a></li>
+                
+            </ul>
+            <br>
+            
+
+            <form method="post">
+                <div>
+                <label for="image_uploads">Sélectionner des fichiers à envoyer (PDF, PNG, JPG)</label>
+                <input type="file" id="image_uploads" name="image_uploads" accept=".pdf, .jpg, .jpeg, .png" multiple>
+                </div>
+            
+
+                <div>
+                <button>Valider</button>
+                </div>
+                
+            </form>
+
+        </div>
+          
+    </body>
+
+    <style>
+
+        .fichiers{
+            margin-left: 40%;
+            margin-top: 10%;
+        }
+
+        ul {
+        padding: 0;
+        width: 100%;
+        }
+
+        li {
+        display: list-item;
+        }
+
+        a {
+        outline: none;
+        text-decoration: none;
+        display: inline-block;
+        width: 20%;
+        margin-bottom: 1%;
+        text-align:left;
+        padding-left: 2%;
+        line-height: 3;
+        color: black;
+        
+        }
+
+     
+        a:link, a:visited, a:focus {
+        background: rgb(161, 210, 236);
+        }
+
+        a:hover {
+        background: rgb(110, 176, 194);
+
+
+        }
+        button {
+            display: inline-block;
+            background-color: #a3dae9;
+            border-radius: 10px;
+            border: 2px double #cccccc;
+            color: #eeeeee;
+            text-align: center;
+            font-size: 16px;
+            padding: 15px;
+            width: 150px;
+            cursor: pointer;
+            margin: 5px;
+            }
+
+        button:hover {
+                background-color: rgb(148, 185, 245);
+                }
+        
+        
+
+        
+        
+
+
+        
+
+        
+    </style>
+</html>
