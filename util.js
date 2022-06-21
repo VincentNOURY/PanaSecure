@@ -10,6 +10,18 @@ function verify(username, password){
     return JSON.parse(fs.readFileSync("data/accounts.json"))[username].password == password
 }
 
+function readFile(path){
+    return JSON.parse(fs.readFileSync(path))
+}
+
+function getPatients(docName){
+    return readFile("data/patients.json")[docName]
+}
+
+function getDocs(patName){
+    return readFile("data/docteurs.json")[patName]
+}
+
 function addUser(username, data){
     let users = JSON.parse(fs.readFileSync("data/accounts.json"))
     if (! Object.keys(users).includes(username)){
@@ -18,7 +30,11 @@ function addUser(username, data){
     fs.writeFile("data/accounts.json", JSON.stringify(users), (err) => {if (err) throw err})
 }
 
-module.exports = {getSessionsSecret, verify, addUser}
+function getDocNames(){
+    return Object.keys(readFile("data/patients.json"))
+}
+
+module.exports = {getSessionsSecret, verify, addUser, getPatients, getDocs, RSA_generateKeyPair, RSA_encrypt, RSA_decrypt, AES_encrypt, AES_decrypt, getDocNames}
 
 // generate an RSA key pair asynchronously
 function RSA_generateKeyPair() {

@@ -28,8 +28,6 @@ app.get('/login', (req, res) => {
     if (req.query.error){
         // To handle
     }
-    console.log(req.session)
-    console.log(session)
 
     if (req.session && Object.keys(req.session).includes('userid')){
         
@@ -44,6 +42,12 @@ app.get('/login', (req, res) => {
             session = req.session
             session.userid = username
             session.active = true
+            if (util.getDocNames().includes(username)){
+                session.doc = true
+            }
+            else{
+                session.doc = false
+            }
             return res.redirect('/')
         }
         if (username || password)
@@ -84,6 +88,25 @@ app.get('/logout',(req, res) => {
 app.get('/me', (req, res) => {
     if (req.session.active){
         res.render("pages/historique")
+    }
+    else{
+        res.redirect('/login')
+    }
+})
+
+app.get("/portal/patient", (req, res) => {
+    if (req.session.active){
+        if (req.session.doc){
+            list = util.getPatients(req.session.userid)
+        }
+        else{
+            list = util.getDocs(req.session.userid)
+        }
+        if (req.query.username){
+            // list documents
+        }
+        console.log(list)
+        res.render("pages/accueil", {doc: req.session.doc, list: list})
     }
     else{
         res.redirect('/login')

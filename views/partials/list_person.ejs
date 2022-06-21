@@ -59,16 +59,30 @@ position: absolute;
 <body>
     <script src="hello.js"> </script>
 <h2></h2>
-<font size ="20" color ="#77b5fe"face=" Helvetica">Liste des patients</font>
 
-<div class="tab">
-    <center>
-       <font color ="#77b5fe" size = "6">Selectionner le patient</font>
-    </center>
-  
-  <button class="tablinks" onclick="openCity(event, 'pat1')"><a href="#">Patient 1 </a></button>
-  <button class="tablinks" onclick="openCity(event, 'pat2')"><a href="#">Patient 2 </a></button>
-  <button class="tablinks" onclick="openCity(event, 'pat3')"><a href="#"> Patient 3</a></a></button>
+  <% if (doc) { %>
+    <font size ="20" color ="#77b5fe"face=" Helvetica">Liste des patients</font>
+    <div class="tab">
+      <center>
+         <font color ="#77b5fe" size = "6">Selectionner le patient</font>
+      </center>
+  <% } else { %>
+    <font size ="20" color ="#77b5fe"face=" Helvetica">Liste des docteurs</font>
+    <div class="tab">
+      <center>
+         <font color ="#77b5fe" size = "6">Selectionner le docteur</font>
+      </center>
+  <% } %>
+
+
+
+  <% list.forEach(function(person) { %>
+    <% if (doc) { %>
+      <a href="/portal/doc?username=<%= person %>"><button class="tablinks"><%= person %></button></a>
+    <% } else { %>
+      <a href="/portal/patient?username=<%= person %>"><button class="tablinks"><%= person %></button></a>
+    <% } %>
+  <% }); %>
 </div>
 
 
