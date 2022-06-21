@@ -4,6 +4,7 @@ const port = 3000
 const util = require('./util')
 const sessions = require('express-session')
 const cookieParser = require('cookie-parser')
+const { fileLoader } = require('ejs')
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -48,7 +49,13 @@ app.get('/login', (req, res) => {
             else{
                 session.doc = false
             }
-            return res.redirect('/')
+            if (req.query.forward){
+                return res.redirect(req.query.forward)
+            }
+            else{
+                return res.redirect('/')
+            }
+            
         }
         if (username || password)
         {
@@ -56,7 +63,7 @@ app.get('/login', (req, res) => {
         }
     }
 
-    res.render("pages/login")
+    res.render("pages/login", {forward: req.query.forward})
 })
 
 app.get('/signup', (req, res) => {
@@ -90,7 +97,7 @@ app.get('/me', (req, res) => {
         res.render("pages/historique")
     }
     else{
-        res.redirect('/login')
+        res.redirect('/login?forward=/me')
     }
 })
 
@@ -105,11 +112,20 @@ app.get("/portal/patient", (req, res) => {
         if (req.query.username){
             documents = util.getDocuments(req.session.userid)
         }
-        console.log(list)
-        res.render("pages/accueil", {doc: req.session.doc, list: list, documents: documents})
+        else{
+            documents = util.getDocuments()
+        }
+        res.render("pages/portal", {doc: req.session.doc, list: list, documents: documents})
     }
     else{
-        res.redirect('/login')
+        res.redirect('/login?forward=/portal/patient')
+    }
+})
+
+app.get("/download/:user/:file", (req, res) => {
+    console.log(req.params.file)
+    if (req.session.active && req.session.userid == req.params.user){
+        res.sendFile(__dirname + "/download/" + req.params.user + "/" + req.params.file)
     }
 })
 

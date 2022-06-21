@@ -38,6 +38,12 @@ function getDocuments(username){
     return readFile("data/documents.json")[username]
 }
 
+function getDocuments(){
+    documents = readFile("data/documents.json")
+    key = Object.keys(documents)[0]
+    return documents[key]
+}
+
 module.exports = {getSessionsSecret, verify, addUser, getPatients, getDocs, getDocuments, RSA_generateKeyPair, RSA_encrypt, RSA_decrypt, AES_generateKey, AES_encrypt, AES_decrypt, getDocNames}
 
 // generate an RSA key pair asynchronously

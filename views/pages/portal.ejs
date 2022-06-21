@@ -7,19 +7,17 @@
         <%- include('../partials/navbar') %>
 
         <%- include('../partials/list_person') %>
+
         <div class="fichiers">
             <h3>Liste des fichiers existants </h3>
 
 
             <ul>
+                <% documents.forEach(function (document) { %>
                 <li>
-                    <a href="#">Ordonnance 20/07</a></li>
-                <li>
-                    <a href="#">Prise de sang 27/07</a></li>
-                <li>
-                    <a href="#">Ordonnance 30/07</a></li>
-                <li>
-                    <a href="#">Radio genou</a></li>
+                    <a href="/download/<%= document.path %>"><%= document.name %></a>
+                </li>
+                <% }); %>
                 
             </ul>
             <br>
