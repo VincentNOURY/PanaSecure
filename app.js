@@ -103,10 +103,10 @@ app.get("/portal/patient", (req, res) => {
             list = util.getDocs(req.session.userid)
         }
         if (req.query.username){
-            // list documents
+            documents = util.getDocuments(req.session.userid)
         }
         console.log(list)
-        res.render("pages/accueil", {doc: req.session.doc, list: list})
+        res.render("pages/accueil", {doc: req.session.doc, list: list, documents: documents})
     }
     else{
         res.redirect('/login')
