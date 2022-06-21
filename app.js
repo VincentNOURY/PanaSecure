@@ -43,6 +43,7 @@ app.get('/login', (req, res) => {
         if (username && password && util.verify(username, password)){
             session = req.session
             session.userid = username
+            session.active = true
             return res.redirect('/')
         }
         if (username || password)
@@ -72,12 +73,22 @@ app.get('/signup', (req, res) => {
 app.get('/logout',(req, res) => {
     req.session.destroy()
     req.session = null
+
     console.log(req.session)
     delete session
     console.log(session)
     res.redirect('/')
 
   })
+
+app.get('/me', (req, res) => {
+    if (req.session.active){
+        res.render("pages/historique")
+    }
+    else{
+        res.redirect('/login')
+    }
+})
 
 app.listen(port, () => {
     console.log(`Listening on port ${port}`)
