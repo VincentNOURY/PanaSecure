@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  background-color: white;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* Add padding to containers */
+.container {
+  padding: 16px;
+
+}
+
+/* Full-width input fields */
+input[type=text], input[type=date] {
+  width: 100%;
+  padding: 15px;
+  margin: 5px 0 22px 0;
+  display: inline-block;
+  border: none;
+  background: #f1f1f1;
+}
+
+input[type=text]:focus, input[type=date]:focus {
+  background-color: #ddd;
+  outline: none;
+}
+
+/* Overwrite default styles of hr */
+hr {
+  border: 1px solid #f1f1f1;
+  margin-bottom: 25px;
+}
+
+
+.registerbtn {
+  background-color: #77b5fe;
+  color: white;
+  padding: 16px 20px;
+  margin: 8px 0;
+  border: none;
+  cursor: pointer;
+  width: 100%;
+  opacity: 0.9;
+}
+
+.registerbtn:hover {
+  opacity: 1;
+}
+
+</style>
+</head>
+<body>
+
+<form action="/action_page.php">
+  <div class="container">
+    <h1>Register</h1>
+    <p>entrez les informations du patient.</p>
+    <hr>
+    <label class="container">Femme
+        <input type="radio" checked="checked" name="radio">
+        <span class="checkmark"></span>
+      </label>
+      <label class="container"><b>Homme</b>
+        <input type="radio" name="radio">
+        <span class="checkmark"></span>
+      </label>
+
+    <label for="nom"><b><p>Nom</p></b></label>
+    <input type="text" placeholder="Enter le nom du patient" name="nom" id="nom" required>
+
+    <label for="prenom"><b>Prénom</b></label>
+    <input type="text" placeholder="Enter le prenom du patient" name="prenom" id="prenom" required>
+
+    <label for="date"><b>Date de naissance </b></label>
+    <input type="date" name="date" id="date" required>
+
+    <label for="pays"><b><p>Pays de naissance</p></b></label>
+    <input type="text"  name="pays" id="pays" required>
+
+    <label for="Numéro"><b><p>Numéro de téléphone</p></b></label>
+    <input type="text" placeholder="Enter le numéro de téléphone" name="nom" id="nom" required>
+
+    <label for="adresse"><b><p>Adresse</p></b></label>
+    <input type="text"  name="adresse" id="adresse" required>
+
+    <label for="ville"><b><p>Ville</p></b></label>
+    <input type="text"  name="ville" id="ville" required>
+
+    <hr>
+
+    <button type="submit" class="registerbtn">Register</button>
+  </div>
+  
+</form>
+
+</body>
+</html>
