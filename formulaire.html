@@ -38,7 +38,9 @@ hr {
   border: 1px solid #f1f1f1;
   margin-bottom: 25px;
 }
-
+a{
+  text-decoration: none;
+}
 
 .registerbtn {
   background-color: #77b5fe;
@@ -61,42 +63,15 @@ hr {
 
 <form action="/action_page.php">
   <div class="container">
-    <h1>Register</h1>
-    <p>entrez les informations du patient.</p>
-    <hr>
-    <label class="container">Femme
-        <input type="radio" checked="checked" name="radio">
-        <span class="checkmark"></span>
-      </label>
-      <label class="container"><b>Homme</b>
-        <input type="radio" name="radio">
-        <span class="checkmark"></span>
-      </label>
-
-    <label for="nom"><b><p>Nom</p></b></label>
-    <input type="text" placeholder="Enter le nom du patient" name="nom" id="nom" required>
-
-    <label for="prenom"><b>Prénom</b></label>
-    <input type="text" placeholder="Enter le prenom du patient" name="prenom" id="prenom" required>
-
-    <label for="date"><b>Date de naissance </b></label>
-    <input type="date" name="date" id="date" required>
-
-    <label for="pays"><b><p>Pays de naissance</p></b></label>
-    <input type="text"  name="pays" id="pays" required>
-
-    <label for="Numéro"><b><p>Numéro de téléphone</p></b></label>
-    <input type="text" placeholder="Enter le numéro de téléphone" name="nom" id="nom" required>
-
-    <label for="adresse"><b><p>Adresse</p></b></label>
-    <input type="text"  name="adresse" id="adresse" required>
-
-    <label for="ville"><b><p>Ville</p></b></label>
-    <input type="text"  name="ville" id="ville" required>
-
+    <h1>Ajouter</h1>
+    <P>Ajouter un patient à sa liste </P>
     <hr>
 
-    <button type="submit" class="registerbtn">Register</button>
+    <label for="nom"><b><p>Entrer le numréro de sécurité social</p></b></label>
+    <input type="text" name="nom" id="nom" required>
+    <hr>
+
+    <button type="submit" class="registerbtn"><a href="#">Ajouter le patient</a></button>
   </div>
   
 </form>
