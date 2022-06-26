@@ -11,27 +11,36 @@
         <div class="fichiers">
             <h3>Liste des fichiers existants </h3>
 
-
-            <ul>
-                <% documents.forEach(function (document) { %>
-                <li>
-                    <a href="/download/<%= document.path %>"><%= document.name %></a>
-                </li>
-                <% }); %>
-                
-            </ul>
-            <br>
+            <% if (documents) {%>
+                <ul>
+                    <% Object.keys(documents).forEach(function (key) { %>
+                    <li>
+                        <a href="/download/<%= documents[key].path %>"><%= documents[key].name %></a>
+                    </li>
+                    <% }); %>
+                    
+                </ul>
+                <br>
+            <% }; %>
             
 
-            <form method="post">
+            <form method="POST" action="/upload" enctype="multipart/form-data">
                 <div>
-                <label for="image_uploads">Sélectionner des fichiers à envoyer (PDF, PNG, JPG)</label>
-                <input type="file" id="image_uploads" name="image_uploads" accept=".pdf, .jpg, .jpeg, .png" multiple>
+                    <p>Send to</p>
+                    <select name="person" id="person">
+                        <% list.forEach(function(person) { %>
+                            <option value="<%= person %>"><%= person %></option>
+                        <% }); %>
+                    </select>
+                </div>
+                <div>
+                    <label for="image_uploads">Sélectionner des fichiers à envoyer (PDF, PNG, JPG)</label>
+                    <input type="file" id="image_uploads" name="uploads" accept=".pdf, .jpg, .jpeg, .png" multiple required>
                 </div>
             
 
                 <div>
-                <button>Valider</button>
+                    <button type="submit">Valider</button>
                 </div>
                 
             </form>

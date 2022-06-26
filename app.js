@@ -4,11 +4,16 @@ const port = 3000
 const util = require('./util')
 const sessions = require('express-session')
 const cookieParser = require('cookie-parser')
+const favicon = require('serve-favicon')
+const path = require('path')
 const { fileLoader } = require('ejs')
+const fileUpload = require('express-fileupload')
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-
+app.use(express.json())
+app.use(express.urlencoded({ extended: true }))
+app.use(favicon(path.join(__dirname,'public','images','favicon.ico')))
+app.use(express.static("public"))
+app.use(fileUpload())
 app.use(cookieParser())
 app.set('view engine', 'ejs')
 
@@ -21,7 +26,7 @@ app.use(sessions({
 var session
 
 app.get('/', (req, res) => {
-    res.send(req.session)
+    res.render('pages/accueil')
 })
 
 app.get('/login', (req, res) => {
@@ -67,7 +72,7 @@ app.get('/login', (req, res) => {
 })
 
 app.get('/signup', (req, res) => {
-    if (["firstname", "name", "username", "email", "password", "passwordconfirm"].every(el => Object.keys(req.query).includes(el))){
+    if (["firstname", "name", "username", "email", "password", "passwordconfirm", "numsecu"].every(el => Object.keys(req.query).includes(el))){
         let username = req.query.username
         delete req.query['username']
         delete req.query['passwordconfirm']
@@ -101,7 +106,7 @@ app.get('/me', (req, res) => {
     }
 })
 
-app.get("/portal/patient", (req, res) => {
+app.get("/portal", (req, res) => {
     if (req.session.active){
         if (req.session.doc){
             list = util.getPatients(req.session.userid)
@@ -109,23 +114,53 @@ app.get("/portal/patient", (req, res) => {
         else{
             list = util.getDocs(req.session.userid)
         }
+        console.log(req.session.userid)
         if (req.query.username){
-            documents = util.getDocuments(req.session.userid)
+            documents = util.getDocuments(req.query.username)
         }
         else{
-            documents = util.getDocuments()
+            documents = util.getDocuments(req.session.userid)
         }
         res.render("pages/portal", {doc: req.session.doc, list: list, documents: documents})
     }
     else{
-        res.redirect('/login?forward=/portal/patient')
+        res.redirect('/login?forward=/portal')
     }
 })
 
 app.get("/download/:user/:file", (req, res) => {
-    console.log(req.params.file)
     if (req.session.active && req.session.userid == req.params.user){
-        res.sendFile(__dirname + "/download/" + req.params.user + "/" + req.params.file)
+        res.type('pdf')
+        res.send(util.getAESFile("download/" + req.params.user + "/" + req.params.file, req.params.user + "/" + req.params.file, req.session.userid))
+    }
+})
+
+app.post('/upload', async (req, res) => {
+    if (req.session.active){
+        if (!req.files){
+            return res.status(400).send("No files were uploaded.")
+        }
+        else{
+            if (util.isIterable(req.files.uploads)){
+                for(file of req.files.uploads){
+                    EAS_key = util.AES_genKey()
+                    data = util.AES_enc(file.data, EAS_key["key"], EAS_key["iv"])
+                    EAS_key.iv = data.iv
+                    util.writeUpload(file.name, data.encryptedData, req.body.person, file.md5, EAS_key)
+                }
+            }
+            else{
+                EAS_key = util.AES_genKey()
+                data = util.AES_enc(req.files.uploads.data, EAS_key["key"], EAS_key["iv"])
+                EAS_key.iv = data.iv
+                util.writeUpload(req.files.uploads.name, data.encryptedData, req.body.person, req.files.uploads.md5, EAS_key)
+            }
+            
+        }
+        return res.redirect('/portal')
+    }
+    else{
+        return res.redirect('/portal')
     }
 })
 

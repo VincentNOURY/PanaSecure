@@ -38,13 +38,49 @@ function getDocuments(username){
     return readFile("data/documents.json")[username]
 }
 
-function getDocuments(){
-    documents = readFile("data/documents.json")
-    key = Object.keys(documents)[0]
-    return documents[key]
+function isUserInDoc(username){
+    return Object.keys(readFile("data/documents.json")).includes(username)
 }
 
-module.exports = {getSessionsSecret, verify, addUser, getPatients, getDocs, getDocuments, RSA_generateKeyPair, RSA_encrypt, RSA_decrypt, AES_generateKey, AES_encrypt, AES_decrypt, getDocNames}
+
+function isIterable(obj) {
+    if (obj == null) {
+      return false
+    }
+    return typeof obj[Symbol.iterator] === 'function'
+  }
+
+function writeUpload(name, data, dest, md5, EAS_key){
+    fs.writeFileSync(`download/${dest}/${name}`, data, "hex")
+    documents = readFile('data/documents.json')
+    if (isUserInDoc(dest)){
+        documents[dest][`${dest}/${name}`] = {name: name, path: `${dest}/${name}`,md5: md5}
+    }
+    else{
+        documents[dest] = {}
+        documents[dest][`${dest}/${name}`] = {name: name, path: `${dest}/${name}`,md5: md5}
+    }
+    fs.writeFileSync("data/documents.json", JSON.stringify(documents))
+    keys = readFile('data/keys.json')
+    keys[`${dest}/${name}`] = EAS_key
+    fs.writeFileSync("data/keys.json", JSON.stringify(keys))
+}
+
+function getAESFile(path, name, userid){
+    key = readFile("data/keys.json")[name]
+    md5 = readFile("data/documents.json")[userid][name].md5
+    file = fs.readFileSync(path, "hex")
+    console.log(path)
+    var md = forge.md.md5.create()
+    md.update(file)
+    md52 = md.digest().toHex()
+    console.log(md52)
+    console.log(md5)
+    console.log(md5 == md52)
+    return AES_dec(file, key['key'], key['iv'])
+}
+
+module.exports = {getSessionsSecret, getAESFile, verify, addUser, isIterable, getPatients, getDocs, writeUpload, getDocuments, RSA_generateKeyPair, RSA_encrypt, RSA_decrypt, getDocNames, AES_enc, AES_dec, AES_genKey} // AES_generateKey, AES_encrypt, AES_decrypt,
 
 // generate an RSA key pair asynchronously
 function RSA_generateKeyPair() {
@@ -65,7 +101,7 @@ function RSA_decrypt(ciphertext, privateKey) {
     return plaintext
 }
 
-function AES_generateKey() {
+/*function AES_generateKey() {
     var key = forge.random.getBytesSync(16);
     var iv = forge.random.getBytesSync(16);
     return ({key, iv})
@@ -89,4 +125,32 @@ function AES_decrypt(ciphertext, key, iv) {
 
     var plaintext = decipher.output;
     return plaintext
+}*/
+
+function AES_enc(text, key, iv) {
+    var crypto = require('crypto');
+    let cipher = crypto.createCipheriv('aes-256-cbc', Buffer.from(key), iv);
+    let encrypted = cipher.update(text);
+    encrypted = Buffer.concat([encrypted, cipher.final()]);
+    return { iv: iv.toString('hex'), encryptedData: encrypted.toString('hex') };
+   }
+   
+function AES_dec(text, key, iv) {
+    var crypto = require('crypto');
+    iv = Buffer.from(iv, 'hex');
+    let encryptedText = Buffer.from(text, 'hex');
+    let decipher = crypto.createDecipheriv('aes-256-cbc', Buffer.from(key), iv);
+    decipher.setAutoPadding(false);
+    let decrypted = decipher.update(encryptedText);
+    decrypted = Buffer.concat([decrypted, decipher.final()]);
+    return decrypted;
 }
+
+function AES_genKey(){
+    var crypto = require('crypto');
+    const key = crypto.randomBytes(32);
+    const iv = crypto.randomBytes(16);
+    return {key: key, iv: iv}
+}
+
+
