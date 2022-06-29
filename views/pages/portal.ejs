@@ -9,28 +9,15 @@
         <%- include('../partials/list_person') %>
 
         <div class="fichiers">
-            <h3>Liste des fichiers existants </h3>
-
-            <% if (documents) {%>
-                <ul>
-                    <% Object.keys(documents).forEach(function (key) { %>
-                    <li>
-                        <a href="/download/<%= documents[key].path %>"><%= documents[key].name %></a>
-                    </li>
-                    <% }); %>
-                    
-                </ul>
-                <br>
-            <% }; %>
-            
-
             <form method="POST" action="/upload" enctype="multipart/form-data">
                 <div>
                     <p>Send to</p>
                     <select name="person" id="person">
-                        <% list.forEach(function(person) { %>
-                            <option value="<%= person %>"><%= person %></option>
-                        <% }); %>
+                        <% if (list){ %>
+                            <% for (person of list) { %>
+                                <option value="<%= person.numsecu %>"><%= person.nom %> <%= person.prenom %></option>
+                            <% }; %>
+                        <% }; %>
                     </select>
                 </div>
                 <div>
@@ -44,6 +31,34 @@
                 </div>
                 
             </form>
+
+            <h3>Liste des fichiers recus </h3>
+
+            <% if (documents) {%>
+                <ul>
+                    <% for (document of documents) { %>
+                    <li>
+                        <a href="/download/<%= document.id %>"><%= document.name %></a>
+                    </li>
+                    <% }; %>
+                    
+                </ul>
+                <br>
+            <% }; %>
+
+            <h3>Liste des fichiers envoyés </h3>
+
+            <% if (sent) {%>
+                <ul>
+                    <% for (document of sent) { %>
+                    <li>
+                        <a href="/download/<%= document.id %>"><%= document.name %></a>
+                    </li>
+                    <% }; %>
+                    
+                </ul>
+                <br>
+            <% }; %>
 
         </div>
           

@@ -1,45 +1,83 @@
 const fs = require('fs')
 const forge = require('node-forge')
+const options = {
+    client: 'pg',
+    connection: readFile("config/config.json").postgresdata
+}
+
+const knex = require('knex')(options);
 
 
 function getSessionsSecret(){
     return JSON.parse(fs.readFileSync("config/config.json")).sessions_secret
 }
 
-function verify(username, password){
-    return JSON.parse(fs.readFileSync("data/accounts.json"))[username].password == password
+async function verify(numsecu, password){
+    pass = await knex('users').where({numsecu: numsecu}).select('password').first()
+    return pass.password == password
+}
+
+async function addDocTo(user, doc){
+    docs = (await knex('users').where({numsecu: user}).select('docs').first()).docs
+    if ( ! docs.includes(parseInt(doc)) ){
+        docs.push(doc)
+        await knex('users').where({numsecu: user}).update({docs: docs})
+    }
+    patients = (await knex('users').where({numsecu: doc}).select('patients').first()).patients
+    if ( ! patients.includes(parseInt(user)) ){
+        patients.push(user)
+        await knex('users').where({numsecu: doc}).update({patients: patients})
+    }
 }
 
 function readFile(path){
     return JSON.parse(fs.readFileSync(path))
 }
 
-function getPatients(docName){
-    return readFile("data/patients.json")[docName]
-}
-
-function getDocs(patName){
-    return readFile("data/docteurs.json")[patName]
-}
-
-function addUser(username, data){
-    let users = JSON.parse(fs.readFileSync("data/accounts.json"))
-    if (! Object.keys(users).includes(username)){
-        users[username] = data
+async function getPatients(numsecu){
+    nums = (await knex('users').where({numsecu: numsecu}).select('patients').first()).patients
+    list = []
+    for (num of nums){
+        list.push((await knex('users').where({numsecu: num}).select().first()))
     }
-    fs.writeFile("data/accounts.json", JSON.stringify(users), (err) => {if (err) throw err})
+    return list
 }
 
-function getDocNames(){
-    return Object.keys(readFile("data/patients.json"))
+async function getDocs(numsecu){
+    nums = (await knex('users').where({numsecu: numsecu}).select('docs').first()).docs
+    list = []
+    for (num of nums){
+        list.push((await knex('users').where({numsecu: num}).select().first()))
+    }
+    return list
 }
 
-function getDocuments(username){
-    return readFile("data/documents.json")[username]
+async function addUser(data){
+    data['isdoc'] = false
+    data['docs'] = []
+    data['patients'] = []
+    let test = false
+    await knex('users').insert(data).then(data => {test = true}).catch(err => {test = false; console.log(err)})
+    fs.mkdir(`download/${data.numsecu}`)
+    return test
 }
 
-function isUserInDoc(username){
-    return Object.keys(readFile("data/documents.json")).includes(username)
+async function getDocNames(){
+    return await knex('users').where({isdoc: true}).first()
+}
+
+async function getDocuments(exp, numsecu){
+    return await knex('files').where({dest: numsecu, exp: exp})
+}
+
+async function makeDoc(numsecu){
+    result = false;
+    await knex('users').where({numsecu: numsecu}).update({isdoc: true, patients: []}).then(data => {result = true}).catch(err => {tesult = false; console.log(err)})
+    return result
+}
+
+async function isDoc(numsecu){
+    return (await knex('users').where({numsecu: numsecu}).select("isdoc").first()).isdoc
 }
 
 
@@ -50,37 +88,26 @@ function isIterable(obj) {
     return typeof obj[Symbol.iterator] === 'function'
   }
 
-function writeUpload(name, data, dest, md5, EAS_key){
+async function writeUpload(name, data, dest, md5, AES_key, exp){
     fs.writeFileSync(`download/${dest}/${name}`, data, "hex")
-    documents = readFile('data/documents.json')
-    if (isUserInDoc(dest)){
-        documents[dest][`${dest}/${name}`] = {name: name, path: `${dest}/${name}`,md5: md5}
-    }
-    else{
-        documents[dest] = {}
-        documents[dest][`${dest}/${name}`] = {name: name, path: `${dest}/${name}`,md5: md5}
-    }
-    fs.writeFileSync("data/documents.json", JSON.stringify(documents))
-    keys = readFile('data/keys.json')
-    keys[`${dest}/${name}`] = EAS_key
-    fs.writeFileSync("data/keys.json", JSON.stringify(keys))
+    result = false
+    await knex('files').insert({name: name, path: `${dest}/${name}`, md5: md5, dest: dest, exp: exp, key: JSON.stringify(AES_key)})
+    .then(data => {result = true}).catch(err => {result = false; console.log(err)})
+    return result
 }
 
-function getAESFile(path, name, userid){
-    key = readFile("data/keys.json")[name]
-    md5 = readFile("data/documents.json")[userid][name].md5
-    file = fs.readFileSync(path, "hex")
-    console.log(path)
-    var md = forge.md.md5.create()
-    md.update(file)
-    md52 = md.digest().toHex()
-    console.log(md52)
-    console.log(md5)
-    console.log(md5 == md52)
-    return AES_dec(file, key['key'], key['iv'])
+async function getAESFile(id, numsecu){
+    file = await knex('files').where({id: id}).select().first()
+    if (numsecu == file.dest || numsecu == file.exp){
+        key = JSON.parse(file.key)
+        md5 = file.md5
+        data = fs.readFileSync("download/" + file.path, "hex")
+        return AES_dec(data, key['key'], key['iv'])
+    }
+
 }
 
-module.exports = {getSessionsSecret, getAESFile, verify, addUser, isIterable, getPatients, getDocs, writeUpload, getDocuments, RSA_generateKeyPair, RSA_encrypt, RSA_decrypt, getDocNames, AES_enc, AES_dec, AES_genKey} // AES_generateKey, AES_encrypt, AES_decrypt,
+module.exports = {getSessionsSecret, makeDoc, addDocTo, isDoc, getAESFile, verify, addUser, isIterable, getPatients, getDocs, writeUpload, getDocuments, RSA_generateKeyPair, RSA_encrypt, RSA_decrypt, getDocNames, AES_enc, AES_dec, AES_genKey} // AES_generateKey, AES_encrypt, AES_decrypt,
 
 // generate an RSA key pair asynchronously
 function RSA_generateKeyPair() {

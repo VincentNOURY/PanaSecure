@@ -29,7 +29,7 @@ app.get('/', (req, res) => {
     res.render('pages/accueil')
 })
 
-app.get('/login', (req, res) => {
+app.get('/login', async (req, res) => {
 
     if (req.query.error){
         // To handle
@@ -41,19 +41,13 @@ app.get('/login', (req, res) => {
     }
 
     if (req.query){
-        let username = req.query.username
+        let numsecu = req.query.numsecu
         let password = req.query.password
 
-        if (username && password && util.verify(username, password)){
+        if (numsecu && password && await util.verify(numsecu, password)){
             session = req.session
-            session.userid = username
+            session.userid = numsecu
             session.active = true
-            if (util.getDocNames().includes(username)){
-                session.doc = true
-            }
-            else{
-                session.doc = false
-            }
             if (req.query.forward){
                 return res.redirect(req.query.forward)
             }
@@ -62,7 +56,7 @@ app.get('/login', (req, res) => {
             }
             
         }
-        if (username || password)
+        if (numsecu || password)
         {
             return res.redirect('/login?error=true')
         }
@@ -71,14 +65,15 @@ app.get('/login', (req, res) => {
     res.render("pages/login", {forward: req.query.forward})
 })
 
-app.get('/signup', (req, res) => {
-    if (["firstname", "name", "username", "email", "password", "passwordconfirm", "numsecu"].every(el => Object.keys(req.query).includes(el))){
-        let username = req.query.username
-        delete req.query['username']
-        delete req.query['passwordconfirm']
+app.get('/signup', async (req, res) => {
+    if (["prenom", "nom", "email", "password", "passwordconfirm", "numsecu"].every(el => Object.keys(req.query).includes(el))){
         if (req.query.password == req.query.passwordconfirm){
-            util.addUser(username, req.query)
-            return res.redirect('/login')
+            delete req.query['passwordconfirm']
+            if (await util.addUser(req.query)){
+                return res.redirect('/login')
+            }
+            return res.redirect('/signup')
+            
         }
         return res.redirect('/signup')
         
@@ -90,9 +85,7 @@ app.get('/logout',(req, res) => {
     req.session.destroy()
     req.session = null
 
-    console.log(req.session)
     delete session
-    console.log(session)
     res.redirect('/')
 
   })
@@ -106,32 +99,47 @@ app.get('/me', (req, res) => {
     }
 })
 
-app.get("/portal", (req, res) => {
+app.get("/portal", async (req, res) => {
     if (req.session.active){
-        if (req.session.doc){
-            list = util.getPatients(req.session.userid)
+        if (! req.query.numsecu ){
+            if (await util.isDoc(req.session.userid)){
+                num = await util.getPatients(req.session.userid)
+            }
+            else{
+                num = await util.getDocs(req.session.userid)
+            }
+            if (num){
+                return res.redirect(`/portal?numsecu=${num[0].numsecu}`)
+            }
+            else{
+                return res.redirect("/portal?numsecu=undefined")
+            }
+        }
+        if (await util.isDoc(req.session.userid)){
+            list = await util.getPatients(req.session.userid)
         }
         else{
-            list = util.getDocs(req.session.userid)
+            list = await util.getDocs(req.session.userid)
         }
-        console.log(req.session.userid)
-        if (req.query.username){
-            documents = util.getDocuments(req.query.username)
+        if (req.query.numsecu == "undefined")
+        {
+            documents = []
         }
         else{
-            documents = util.getDocuments(req.session.userid)
+            documents = await util.getDocuments(req.session.userid, parseInt(req.query.numsecu))
         }
-        res.render("pages/portal", {doc: req.session.doc, list: list, documents: documents})
+        sent = await util.getDocuments(parseInt(req.query.numsecu), req.session.userid)
+        res.render("pages/portal", {doc: await util.isDoc(req.session.userid), list: list, documents: documents, sent: sent})
     }
     else{
         res.redirect('/login?forward=/portal')
     }
 })
 
-app.get("/download/:user/:file", (req, res) => {
-    if (req.session.active && req.session.userid == req.params.user){
+app.get("/download/:id", async (req, res) => {
+    if (req.session.active){
         res.type('pdf')
-        res.send(util.getAESFile("download/" + req.params.user + "/" + req.params.file, req.params.user + "/" + req.params.file, req.session.userid))
+        res.send(await util.getAESFile(req.params.id, req.session.userid))
     }
 })
 
@@ -146,14 +154,14 @@ app.post('/upload', async (req, res) => {
                     EAS_key = util.AES_genKey()
                     data = util.AES_enc(file.data, EAS_key["key"], EAS_key["iv"])
                     EAS_key.iv = data.iv
-                    util.writeUpload(file.name, data.encryptedData, req.body.person, file.md5, EAS_key)
+                    util.writeUpload(file.name, data.encryptedData, req.body.person, file.md5, EAS_key, req.session.userid)
                 }
             }
             else{
                 EAS_key = util.AES_genKey()
                 data = util.AES_enc(req.files.uploads.data, EAS_key["key"], EAS_key["iv"])
                 EAS_key.iv = data.iv
-                util.writeUpload(req.files.uploads.name, data.encryptedData, req.body.person, req.files.uploads.md5, EAS_key)
+                util.writeUpload(req.files.uploads.name, data.encryptedData, req.body.person, req.files.uploads.md5, EAS_key, req.session.userid)
             }
             
         }
@@ -162,6 +170,21 @@ app.post('/upload', async (req, res) => {
     else{
         return res.redirect('/portal')
     }
+})
+
+app.get('/add', (req, res) => {
+    if (req.session.active){
+        return res.render('pages/add_patient')
+    }
+    return res.redirect('/login?forward=/add')
+})
+
+app.post('/add', async (req, res) => {
+    if (req.session.active && util.isDoc(req.session.userid)){
+        await util.addDocTo(req.body.numsecu, req.session.userid)
+        return res.redirect('/portal')
+    }
+    return res.redirect('/login?forward=/add')
 })
 
 app.listen(port, () => {
