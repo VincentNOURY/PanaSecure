@@ -1,6 +1,7 @@
 <head>
     <title>S'inscrire </title>
-    <link rel="stylesheet" href="style2.css" />
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="/css/style2.css" />
 
 </head>
 
@@ -8,7 +9,7 @@
     <%- include('../partials/navbar') %>
     <div class="overlay">
 
-        <form>
+        <form class="form-main">
             <div class="con">
                 <header class="head-form">
                     <h2>Inscription</h2>
@@ -73,12 +74,6 @@
                         <input class="form-input" type="password" placeholder="Confirmation du mot de passe" id="pwd"
                             name="passwordconfirm" required>
                         <br>
-                        <!--      Show/hide password  -->
-                        <span>
-                            <i class="fa fa-eye" aria-hidden="true" type="button" id="eye"></i>
-
-                        </span>
-                        <br>
 
 
                         <!--        buttons -->
@@ -99,5 +94,4 @@
             <!-- End Form -->
         </form>
     </div>
-    <%- include('../partials/footer') %>
 </body>

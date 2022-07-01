@@ -1,63 +1,66 @@
 <head>
     <title>Connexion </title>
-    <link rel="stylesheet" href="style2.css" />
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="/css/style2.css" />
 
 </head>
 
 <body>
     <%- include('../partials/navbar') %>
-    <div class="overlay">
+        <div class="overlay">
+            <form class="form-main">
+                <div class="con">
+                    <header class="head-form">
+                        <h2>Connexion</h2>
 
-        <form>
-            <div class="con">
-                <header class="head-form">
-                    <h2>Connexion</h2>
+                        <p>Connectez-vous avec votre email et votre mot de passe</p>
+                    </header>
+                    <br>
+                    <div class="field-set">
+                        <form action="/login" action="GET">
+                            <input type="hidden" name="forward" value="<%= forward %>">
 
-                    <p>Connectez-vous avec votre email et votre mot de passe</p>
-                </header>
-                <br>
-                <div class="field-set">
-                    <form action="/login" action="GET">
-                    <input type="hidden" name="forward" value="<%= forward %>">
+                            <!--   user name -->
+                            <span class="input-item">
+                                <i class="fa fa-user-circle"></i>
+                            </span>
+                            <!--   user name Input-->
+                            <input class="form-input" id="txt-input" type="text"
+                                placeholder="Numéro de sécurité sociale" name="numsecu" required>
 
-                        <!--   user name -->
-                        <span class="input-item">
-                            <i class="fa fa-user-circle"></i>
-                        </span>
-                        <!--   user name Input-->
-                        <input class="form-input" id="txt-input" type="text" placeholder="Numéro de sécurité sociale" name="numsecu"
-                            required>
+                            <br>
 
-                        <br>
+                            <!--   Password -->
 
-                        <!--   Password -->
+                            <span class="input-item">
+                                <i class="fa fa-key"></i>
+                            </span>
+                            <!--   Password Input-->
+                            <input class="form-input" type="password" placeholder="Mot de passe" id="pwd"
+                                name="password" name="password" required>
 
-                        <span class="input-item">
-                            <i class="fa fa-key"></i>
-                        </span>
-                        <!--   Password Input-->
-                        <input class="form-input" type="password" placeholder="Mot de passe" id="pwd" name="password"
-                            name="password" required>
-
-                        <!--      Show/hide password  -->
-                        <span>
-                            <i class="fa fa-eye" aria-hidden="true" type="button" id="eye"></i>
-                        </span>
+                            <!--      Show/hide password  -->
+                            <span>
+                                <i class="fa fa-eye" aria-hidden="true" type="button" id="eye"></i>
+                            </span>
 
 
-                        <br>
-                        <br>
-                        <!--        buttons -->
-                        <button class="log-in" type="submit">Connexion</button>
+                            <br>
+                            <br>
+                            <!--        buttons -->
+                            <button class="log-in" type="submit">Connexion</button>
+                        </form>
+                    </div>
+
+                    <div class="other">
+                        <form action="/signup" method="GET">
+                            <button class="btn submits sign-up" style="width: 100%;">S'inscrire
+                            <!--         Sign Up font icon -->
+                            <i class="fa fa-user-plus" aria-hidden="true"></i>
+                            </button>
+                        </form>
+                    </div>
                 </div>
-
-                <div class="other">
-                    <button class="btn submits frgt-pass">Mot de passe oublié</button>
-        </form>
-    </div>
-
-    </div>
-    </form>
-    </div>
-    <%- include('../partials/footer') %>
+            </form>
+        </div>
 </body>

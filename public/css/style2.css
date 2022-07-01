@@ -9,6 +9,7 @@
     margin: 0;
     box-sizing: border-box;
 }
+
 /* End Global rules */
 
 
@@ -16,15 +17,15 @@
 /* Start body rules */
 body {
     background-image: linear-gradient(-225deg, #b8e4d7 0%, #e6f8ff 100%);
-background-image: linear-gradient(to top, #c6f2e4 0%, #bfedf9 100%);
-background-attachment: fixed;
-  background-repeat: no-repeat;
+    background-image: linear-gradient(to top, #c6f2e4 0%, #bfedf9 100%);
+    background-attachment: fixed;
+    background-repeat: no-repeat;
 
     font-family: 'Vibur', cursive;
-/*   the main font */
+    /*   the main font */
     font-family: 'Abel', sans-serif;
-opacity: .95;
-/* background-image: linear-gradient(to top, #d9afd9 0%, #97d9e1 100%); */
+    opacity: .95;
+    /* background-image: linear-gradient(to top, #d9afd9 0%, #97d9e1 100%); */
 }
 
 
@@ -39,31 +40,31 @@ opacity: .95;
 
 
 
-
-
 /* Start form  attributes */
-form {
+.form-main {
     width: 450px;
     min-height: 500px;
     height: auto;
+    left: 50%;
     border-radius: 5px;
     margin: 2% auto;
     box-shadow: 0 9px 50px hsla(20, 67%, 75%, 0.31);
     padding: 2%;
     background-image: linear-gradient(-225deg, #E3FDF5 50%, #a9e9ef 50%);
 }
+
 /* form Container */
-form .con {
+.form-main .con {
     display: -webkit-flex;
     display: flex;
-  
+
     -webkit-justify-content: space-around;
     justify-content: space-around;
-  
+
     -webkit-flex-wrap: wrap;
     flex-wrap: wrap;
-  
-      margin: 0 auto;
+
+    margin: 0 auto;
 }
 
 /* the header form form */
@@ -71,14 +72,18 @@ header {
     margin: 2% auto 10% auto;
     text-align: center;
 }
+
 /* Login title form form */
 header h2 {
     font-size: 250%;
     font-family: 'Playfair Display', serif;
     color: #3e403f;
 }
+
 /*  A welcome message or an explanation of the login form */
-header p {letter-spacing: 0.05em;}
+header p {
+    letter-spacing: 0.05em;
+}
 
 
 
@@ -99,40 +104,45 @@ header p {letter-spacing: 0.05em;}
 #eye {
     background: #fff;
     color: #333;
-  
+
     margin: 5.9px 0 0 0;
     margin-left: -20px;
     padding: 15px 9px 19px 0px;
     border-radius: 0px 5px 5px 0px;
-  
+
     float: right;
     position: relative;
     right: 1%;
     top: -.2%;
     z-index: 5;
-    
+
     cursor: pointer;
 }
+
 /* inputs form  */
-input[class="form-input"]{
+input[class="form-input"] {
     width: 240px;
     height: 50px;
-  
+
     margin-top: 2%;
     padding: 15px;
-    
+
     font-size: 16px;
     font-family: 'Abel', sans-serif;
     color: #5E6472;
-  
+
     outline: none;
     border: none;
-  
+
     border-radius: 0px 5px 5px 0px;
     transition: 0.2s linear;
-    
+
 }
-input[id="txt-input"] {width: 250px;}
+
+input[id="txt-input"] {
+    width: 250px;
+}
+
 /* focus  */
 input:focus {
     transform: translateX(-2px);
@@ -147,38 +157,45 @@ input:focus {
 button {
     display: inline-block;
     color: #252537;
-  
+
     width: 280px;
     height: 50px;
-  
+
     padding: 0 20px;
     background: #fff;
     border-radius: 5px;
-    
+
     outline: none;
     border: none;
-  
+
     cursor: pointer;
     text-align: center;
     transition: all 0.2s linear;
-    
+
     margin: 7% auto;
     letter-spacing: 0.05em;
 }
+
 /* Submits */
 .submits {
     width: 48%;
     display: inline-block;
-    float: left;
     margin-left: 2%;
 }
 
 /*       Forgot Password button FAF3DD  */
-.frgt-pass {background: transparent;}
+.frgt-pass {
+    background: transparent;
+}
 
 /*     Sign Up button  */
-.sign-up {background: #B8F2E6;}
+.sign-up {
+    background: #B8F2E6;
+}
 
+.other{
+    display: inline-flex;
+}
 
 /* buttons hover */
 button:hover {
@@ -190,40 +207,42 @@ button:hover {
 button:hover {
     animation: ani9 0.4s ease-in-out infinite alternate;
 }
+
 @keyframes ani9 {
     0% {
         transform: translateY(3px);
     }
+
     100% {
         transform: translateY(5px);
     }
 }
 
-footer{
-	z-index: 10;
-	background: linear-gradient(#037df7, #00468b, #001d3a);
-	position:relative;
-	bottom:0%;
-	width:100%;
-	padding: 20px;
-	display: flex;
-	flex-wrap: wrap;
-	justify-content: space-around;
-	background-image: linear-gradient(to top, #c6f2e4 0%, #bfedf9 100%);
+footer {
+    z-index: 10;
+    background: linear-gradient(#037df7, #00468b, #001d3a);
+    position: relative;
+    bottom: 0%;
+    width: 100%;
+    padding: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    background-image: linear-gradient(to top, #c6f2e4 0%, #bfedf9 100%);
 }
 
 footer h3 {
-	color: white;
+    color: white;
 }
 
 footer p {
-	cursor: pointer;
-	color: #ccc;
-	transition: color 1s;
+    cursor: pointer;
+    color: #ccc;
+    transition: color 1s;
 }
 
 footer p:hover {
-	color: white;
-	text-decoration: underline;
-	
+    color: white;
+    text-decoration: underline;
+
 }
