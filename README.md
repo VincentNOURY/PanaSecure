@@ -11,5 +11,5 @@ L'objectif de PanaSecure est de sécuriser les transferts de fichiers dans le do
 ### Docker
 
 ```bash
-docker build . -t panasecure && docker run -d --name=PanaSecure -p 3000:3000 -v db_user="" -v db_host="" -v db_database="" -v db_password="" -v db_port="" panasecure
+docker build . -t panasecure && docker run -d --name=PanaSecure -p 3000:3000 -v db_user="" -v db_host="" -v db_database="" -v db_password="" -v db_port="" -v sessions_secret="" panasecure
 ```

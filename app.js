@@ -18,7 +18,7 @@ app.use(cookieParser())
 app.set('view engine', 'ejs')
 
 app.use(sessions({
-    secret: util.getSessionsSecret(),
+    secret: process.env.sessions_secret || util.getSessionsSecret(),
     saveUninitialized: true,
     resave: true 
 }))
