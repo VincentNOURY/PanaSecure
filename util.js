@@ -1,8 +1,15 @@
 const fs = require('fs')
 const forge = require('node-forge')
+let postgressdata = readFile("config/config.json").postgresdata
 const options = {
     client: 'pg',
-    connection: readFile("config/config.json").postgresdata || {user: process.env.db_user, port: process.env.db_port, host: process.env.db_host, database: process.env.db_database, password: process.env.db_password}
+    connection: {
+        user: process.env.db_user || postgressdata.user,
+        port: process.env.db_port || postgressdata.port,
+        host: process.env.db_host || postgressdata.host,
+        database: process.env.db_database || postgressdata.database,
+        password: process.env.db_password || postgressdata.password
+    }
 }
 
 const knex = require('knex')(options);
