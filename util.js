@@ -69,7 +69,7 @@ async function addUser(data){
     data.password = hashPassword(data.password)
     console.log(data.password)
     await knex('users').insert(data).then(data => {test = true}).catch(err => {test = false; console.log(err)})
-    fs.mkdir(path.join(__dirname, 'download', parseString(parseInt(data.numsecu))), (err) => {if (err) {return console.error(err)}})
+    fs.mkdir(path.join(__dirname, 'download', JSON.stringify(parseInt(data.numsecu))), (err) => {if (err) {return console.error(err)}})
     return test
 }
 
