@@ -19,7 +19,7 @@
 
       background-color: #c0dfef;
       width: 30%;
-      height: 70%;
+      height: 100%;
       position: absolute;
 
     }
@@ -76,32 +76,40 @@
         <font color="#77b5fe" size="6">Selectionner le patient</font>
         <a href="/add"><i class="fa fa-plus"></i></a>
       </center>
-      <% } else { %>
-        <font size="20" color="#77b5fe" face=" Helvetica">Liste des docteurs</font>
+      <% } else if (admin) { %>
+        <font size="20" color="#77b5fe" face=" Helvetica">Désigner Docteur</font>
         <div class="tab">
           <center>
-            <font color="#77b5fe" size="6">Selectionner le docteur</font>
+            <a href="/add"><i class="fa fa-plus"></i></a>
           </center>
-          <% } %>
+          <% } else { %>
+            <font size="20" color="#77b5fe" face=" Helvetica">Liste des docteurs</font>
+            <div class="tab">
+              <center>
+                <font color="#77b5fe" size="6">Selectionner le docteur</font>
+              </center>
+              <% } %>
 
-            <% if (list) { %>
-                <% for (person of list) { %>
-                  <% if (doc) { %>
-                    <a href="/portal?numsecu=<%= person.numsecu %>">
-                      <button class="tablinks">
-                        <%= person.nom %>  <%= person.prenom %>
-                      </button>
-                    </a>
-                  <% } else { %>
-                    <a href="/portal?numsecu=<%= person.numsecu %>">
-                      <button class="tablinks">
-                        <%= person.nom %> <%= person.prenom %>
-                      </button>
-                    </a>
-                  <% }; %>
-                <% }; %>
-              <% }; %>
-        </div>
+                <% if (list) { %>
+                  <% for (person of list) { %>
+                    <% if (doc) { %>
+                      <a href="/portal?numsecu=<%= person.numsecu %>">
+                        <button class="tablinks">
+                          <%= person.nom %>
+                            <%= person.prenom %>
+                        </button>
+                      </a>
+                      <% } else { %>
+                        <a href="/portal?numsecu=<%= person.numsecu %>">
+                          <button class="tablinks">
+                            <%= person.nom %>
+                              <%= person.prenom %>
+                          </button>
+                        </a>
+                        <% }; %>
+                          <% }; %>
+                            <% }; %>
+            </div>
 
 
 </body>

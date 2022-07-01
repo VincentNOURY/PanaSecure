@@ -1,5 +1,6 @@
 const fs = require('fs')
 const forge = require('node-forge')
+const path = require('path')
 let postgressdata = readFile("config/config.json").postgresdata
 const options = {
     client: 'pg',
@@ -22,7 +23,7 @@ function getSessionsSecret(){
 async function verify(numsecu, password){
     password = hashPassword(password)
     pass = await knex('users').where({numsecu: numsecu}).select('password').first()
-    return pass.password == pwd
+    return pass.password == password
 }
 
 async function addDocTo(user, doc){
@@ -66,16 +67,16 @@ async function addUser(data){
     data['patients'] = []
     let test = false
     data.password = hashPassword(data.password)
+    console.log(data.password)
     await knex('users').insert(data).then(data => {test = true}).catch(err => {test = false; console.log(err)})
-    fs.mkdir(`download/${data.numsecu}`)
+    fs.mkdir(path.join(__dirname, 'download', parseInt(data.numsecu)), (err) => {if (err) {return console.error(err)}})
     return test
 }
 
 function hashPassword(password) {
     let pwd = forge.md.sha256.create()
     pwd.update(password)
-    pwd.finish()
-    return pwd.output
+    return pwd.digest().toHex()
 }
 
 async function getDocNames(){
@@ -104,10 +105,20 @@ function isIterable(obj) {
     return typeof obj[Symbol.iterator] === 'function'
   }
 
-async function writeUpload(name, data, dest, md5, AES_key, exp){
-    fs.writeFileSync(`download/${dest}/${name}`, data, "hex")
+async function writeUpload(name_rec, data, dest, md5, AES_key, exp){
+    name_file = name_rec
+    if (fs.existsSync(`download/${dest}/${name_file}`)){
+        cp = 0
+        do {
+            cp += 1
+            name_temp = name_rec.split('.')
+            name_file = name_temp.slice(0, name_temp.length - 1) + " - " + cp + "." + name_temp[name_temp.length - 1]
+        } while (fs.existsSync(`download/${dest}/${name_file}`))
+    }
+    
+    fs.writeFileSync(`download/${dest}/${name_file}`, data, "hex")
     result = false
-    await knex('files').insert({name: name, path: `${dest}/${name}`, md5: md5, dest: dest, exp: exp, key: JSON.stringify(AES_key)})
+    await knex('files').insert({name: name_file, path: `${dest}/${name_file}`, md5: md5, dest: dest, exp: exp, key: JSON.stringify(AES_key)})
     .then(data => {result = true}).catch(err => {result = false; console.log(err)})
     return result
 }

@@ -8,6 +8,13 @@ L'objectif de PanaSecure est de sécuriser les transferts de fichiers dans le do
 
 ## Usage
 
+Premièrement déployer une base de donnée Postgresql avec le fichier schema.sql trouvable dans database
+
+
+### Attention
+
+Le compte avec le numéro de sécurité sociale 0 est le compte administrateur
+
 ### Docker
 
 ```bash

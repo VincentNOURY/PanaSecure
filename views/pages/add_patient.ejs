@@ -66,24 +66,31 @@
 
 <body>
   <%- include('../partials/navbar') %>
-  
+
     <form action="/add" method="POST">
       <div class="container">
         <h1>Ajouter</h1>
-        <P>Ajouter un patient à sa liste </P>
-        <hr>
+        <% if (doc){ %>
+          <p>Ajouter un patient à sa liste </p>
+          <% } else { %>
+            <p>Désigner docteur</p>
+            <% } %>
+              <hr>
 
-        <label for="numsecu"><b>
-            <p>Entrer le numréro de sécurité social</p>
-          </b></label>
-        <input type="text" name="numsecu" id="numsecu" required>
-        <hr>
-
-        <button type="submit" class="registerbtn"><a href="#">Ajouter le patient</a></button>
+              <label for="numsecu"><b>
+                  <p>Entrer le numréro de sécurité social</p>
+                </b></label>
+              <input type="text" name="numsecu" id="numsecu" required>
+              <hr>
+              <% if (doc){ %>
+                <button type="submit" class="registerbtn">Ajouter le patient</button>
+                <% } else { %>
+                  <button type="submit" class="registerbtn">Ajouter le docteur</button>
+                  <% } %>
       </div>
 
     </form>
-  <%- include('../partials/footer') %>
+    <%- include('../partials/footer') %>
 </body>
 
 </html>

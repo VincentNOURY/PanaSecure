@@ -108,11 +108,11 @@ app.get("/portal", async (req, res) => {
             else{
                 num = await util.getDocs(req.session.userid)
             }
-            if (num){
+            if (num.length > 0){
                 return res.redirect(`/portal?numsecu=${num[0].numsecu}`)
             }
             else{
-                return res.redirect("/portal?numsecu=undefined")
+                return res.redirect("/portal?numsecu=0")
             }
         }
         if (await util.isDoc(req.session.userid)){
@@ -121,15 +121,16 @@ app.get("/portal", async (req, res) => {
         else{
             list = await util.getDocs(req.session.userid)
         }
-        if (req.query.numsecu == "undefined")
+        console.log(req.query.numsecu)
+        if (parseInt(req.query.numsecu) == 0)
         {
             documents = []
         }
         else{
-            documents = await util.getDocuments(req.session.userid, parseInt(req.query.numsecu))
+            documents = await util.getDocuments(parseInt(req.query.numsecu), req.session.userid)
         }
-        sent = await util.getDocuments(parseInt(req.query.numsecu), req.session.userid)
-        res.render("pages/portal", {doc: await util.isDoc(req.session.userid), list: list, documents: documents, sent: sent})
+        sent = await util.getDocuments(req.session.userid, parseInt(req.query.numsecu))
+        res.render("pages/portal", {doc: await util.isDoc(req.session.userid), list: list, documents: documents, sent: sent, admin: parseInt(req.session.userid) == 0})
     }
     else{
         res.redirect('/login?forward=/portal')
@@ -172,15 +173,18 @@ app.post('/upload', async (req, res) => {
     }
 })
 
-app.get('/add', (req, res) => {
+app.get('/add', async (req, res) => {
     if (req.session.active){
-        return res.render('pages/add_patient')
+        return res.render('pages/add_patient', {doc: await util.isDoc(req.session.userid)})
     }
     return res.redirect('/login?forward=/add')
 })
 
 app.post('/add', async (req, res) => {
-    if (req.session.active && util.isDoc(req.session.userid)){
+    if (req.session.active && parseInt(req.session.userid) == 0){
+        await util.makeDoc(req.body.numsecu)
+    }
+    else if (req.session.active && await util.isDoc(req.session.userid)){
         await util.addDocTo(req.body.numsecu, req.session.userid)
         return res.redirect('/portal')
     }
