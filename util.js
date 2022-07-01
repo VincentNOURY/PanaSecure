@@ -20,8 +20,10 @@ function getSessionsSecret(){
 }
 
 async function verify(numsecu, password){
+    let pwd = forge.md.sha256.create()
+    pwd.update(password)
     pass = await knex('users').where({numsecu: numsecu}).select('password').first()
-    return pass.password == password
+    return pass.password == pwd
 }
 
 async function addDocTo(user, doc){
@@ -64,6 +66,8 @@ async function addUser(data){
     data['docs'] = []
     data['patients'] = []
     let test = false
+    let pwd = forge.md.sha256.create()
+    data.password = pwd.update(data.password)
     await knex('users').insert(data).then(data => {test = true}).catch(err => {test = false; console.log(err)})
     fs.mkdir(`download/${data.numsecu}`)
     return test
