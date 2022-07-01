@@ -10,7 +10,7 @@ CREATE TABLE users
     nom VARCHAR(30),
     prenom VARCHAR(30),
     email VARCHAR(200),
-    password VARCHAR(100),
+    password VARCHAR,
     isdoc BOOLEAN,
     patients INT[],
     docs INT[]
