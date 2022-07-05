@@ -14,7 +14,7 @@ const options = {
 }
 
 const knex = require('knex')(options);
-
+const salt = process.env.salt
 
 function getSessionsSecret(){
     return JSON.parse(fs.readFileSync("config/config.json")).sessions_secret
@@ -75,7 +75,7 @@ async function addUser(data){
 
 function hashPassword(password) {
     let pwd = forge.md.sha256.create()
-    pwd.update(password)
+    pwd.update(salt + password)
     return pwd.digest().toHex()
 }
 
