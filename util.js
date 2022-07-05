@@ -207,4 +207,30 @@ function AES_genKey(){
     return {key: key, iv: iv}
 }
 
+// To use in /signup to generate static ECDH key pair for any new account, and upload public key on server
+function ECDH_genKeyPair(){
+    var crypto = require('crypto');
+    // Creating ECDH with curve name
+    var ecdh = crypto.createECDH('secp521r1');
+    ecdh.generateKeys();
+
+    // Prints Public key
+    // console.log("Public Key: ", ecdh.getPublicKey());
+  
+    // Prints Private Key
+    // console.log("Private Key :", ecdh.getPrivateKey());
+
+    return { publicKey: ecdh.getPublicKey(), privateKey: ecdh.getPrivateKey() }
+}
+
+// generates an AES key
+// To use in /upload, for the sender to encrypt file
+// To use for the receiver when decrypting file
+function ECDH_computeSecret(privateKey_1, publicKey_2) {
+    var crypto = require('crypto');
+    var ecdh = crypto.createECDH('secp521r1');
+    var secret = ecdh.computeSecret(publicKey_2, privateKey_1);
+    return secret
+}
+
 
