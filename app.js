@@ -8,6 +8,8 @@ const favicon = require('serve-favicon')
 const path = require('path')
 const { fileLoader } = require('ejs')
 const fileUpload = require('express-fileupload')
+const server = require('http').createServer(app)
+const io = require('socket.io')(server)
 
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
@@ -90,12 +92,12 @@ app.get('/logout',(req, res) => {
 
   })
 
-app.get('/me', (req, res) => {
+app.get('/message', (req, res) => {
     if (req.session.active){
-        res.render("pages/historique")
+        res.render("pages/message")
     }
     else{
-        res.redirect('/login?forward=/me')
+        res.redirect('/login?forward=/message')
     }
 })
 
@@ -189,6 +191,14 @@ app.post('/add', async (req, res) => {
         return res.redirect('/portal')
     }
     return res.redirect('/login?forward=/add')
+})
+
+io.on('connection', (socket) => {
+    console.log('Utilisateur connecté')
+
+    socket.on('message', (msg) => {
+        io.emit('message', msg)
+    })
 })
 
 app.listen(port, () => {
