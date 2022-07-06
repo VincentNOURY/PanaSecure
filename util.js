@@ -39,6 +39,11 @@ async function addDocTo(user, doc){
     }
 }
 
+async function getName(numsecu){
+    info = await knex('users').where({numsecu: numsecu}).select("prenom", "nom").first()
+    return info
+}
+
 function readFile(path){
     return JSON.parse(fs.readFileSync(path))
 }
@@ -134,7 +139,7 @@ async function getAESFile(id, numsecu){
 
 }
 
-module.exports = {getSessionsSecret, makeDoc, addDocTo, isDoc, getAESFile, verify, addUser, isIterable, getPatients, getDocs, writeUpload, getDocuments, RSA_generateKeyPair, RSA_encrypt, RSA_decrypt, getDocNames, AES_enc, AES_dec, AES_genKey} // AES_generateKey, AES_encrypt, AES_decrypt,
+module.exports = {getSessionsSecret, makeDoc, getName, addDocTo, isDoc, getAESFile, verify, addUser, isIterable, getPatients, getDocs, writeUpload, getDocuments, RSA_generateKeyPair, RSA_encrypt, RSA_decrypt, getDocNames, AES_enc, AES_dec, AES_genKey} // AES_generateKey, AES_encrypt, AES_decrypt,
 
 // generate an RSA key pair asynchronously
 function RSA_generateKeyPair() {

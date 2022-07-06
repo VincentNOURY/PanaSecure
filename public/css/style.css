@@ -57,14 +57,14 @@ button:hover {
 
 
 .icon-bar-nav {
-    width: 125%;
+    width: 100%;
     background-color: #b8e4d7;
     overflow: auto;
 }
 
 .icon-bar-nav a {
     float: left;
-    width: 20%;
+    width: 25%;
     text-align: center;
     padding: 12px 0;
     transition: all 0.3s ease;
@@ -252,4 +252,24 @@ td:first-child {
 tr:nth-child(even) {
     background-color: #f2f2f2;
     width: 100%;
+}
+
+#message-form{
+    background-color: #b8e4d7;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: fixed;
+    bottom: 0;
+}
+
+#msg-input{
+    width: 90%;
+    resize: both;
+}
+
+#msg-button{
+    background-color: rgb(161, 210, 236);
+    color: white;
 }

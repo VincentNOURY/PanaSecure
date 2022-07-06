@@ -1,65 +1,74 @@
 <html>
-    
-        <link rel="stylesheet" href="/css/style.css" />
-    
 
-    <body>
-        <%- include('../partials/navbar') %>
+<link rel="stylesheet" href="/css/style.css" />
+
+
+<body>
+    <%- include('../partials/navbar') %>
 
         <%- include('../partials/list_person') %>
 
-        <div class="fichiers">
-            <form method="POST" action="/upload" enctype="multipart/form-data">
-                <div>
-                    <p>Send to</p>
-                    <select name="person" id="person">
-                        <% if (list){ %>
-                            <% for (person of list) { %>
-                                <option value="<%= person.numsecu %>"><%= person.nom %> <%= person.prenom %></option>
+            <div class="fichiers">
+                <form method="POST" action="/upload" enctype="multipart/form-data">
+                    <div>
+                        <p>Send to</p>
+                        <select name="person" id="person">
+                            <% if (list){ %>
+                                <% for (person of list) { %>
+                                    <option value="<%= person.numsecu %>">
+                                        <%= person.nom %>
+                                            <%= person.prenom %>
+                                    </option>
+                                    <% }; %>
+                                        <% }; %>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="image_uploads">Sélectionner des fichiers à envoyer (PDF, PNG, JPG)</label>
+                        <input type="file" id="image_uploads" name="uploads" accept=".pdf, .jpg, .jpeg, .png" multiple
+                            required>
+                    </div>
+
+
+                    <div>
+                        <button type="submit">Valider</button>
+                    </div>
+
+                </form>
+
+                <h3>Liste des fichiers recus </h3>
+
+                <% if (documents) {%>
+                    <ul>
+                        <% for (document of documents) { %>
+                            <li>
+                                <a href="/download/<%= document.id %>">
+                                    <%= document.name %>
+                                </a>
+                            </li>
                             <% }; %>
-                        <% }; %>
-                    </select>
-                </div>
-                <div>
-                    <label for="image_uploads">Sélectionner des fichiers à envoyer (PDF, PNG, JPG)</label>
-                    <input type="file" id="image_uploads" name="uploads" accept=".pdf, .jpg, .jpeg, .png" multiple required>
-                </div>
-            
 
-                <div>
-                    <button type="submit">Valider</button>
-                </div>
-                
-            </form>
-
-            <h3>Liste des fichiers recus </h3>
-
-            <% if (documents) {%>
-                <ul>
-                    <% for (document of documents) { %>
-                    <li>
-                        <a href="/download/<%= document.id %>"><%= document.name %></a>
-                    </li>
+                    </ul>
+                    <br>
                     <% }; %>
-                    
-                </ul>
-                <br>
-            <% }; %>
 
-            <h3>Liste des fichiers envoyés </h3>
+                        <h3>Liste des fichiers envoyés </h3>
 
-            <% if (sent) {%>
-                <ul>
-                    <% for (document of sent) { %>
-                    <li>
-                        <a href="/download/<%= document.id %>"><%= document.name %></a>
-                    </li>
-                    <% }; %>
-                    
-                </ul>
-                <br>
-            <% }; %>
+                        <% if (sent) {%>
+                            <ul>
+                                <% for (document of sent) { %>
+                                    <li>
+                                        <a href="/download/<%= document.id %>">
+                                            <%= document.name %>
+                                        </a>
+                                    </li>
+                                    <% }; %>
 
-        </div>
-    </body>
+                            </ul>
+                            <br>
+                            <% }; %>
+
+            </div>
+</body>
+
 </html>

@@ -8,8 +8,12 @@ const favicon = require('serve-favicon')
 const path = require('path')
 const { fileLoader } = require('ejs')
 const fileUpload = require('express-fileupload')
-const server = require('http').createServer(app)
+const server = app.listen(3000, () => {
+    console.log(`Listening on port ${port}`)
+})
 const io = require('socket.io')(server)
+
+var room;
 
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
@@ -92,9 +96,24 @@ app.get('/logout',(req, res) => {
 
   })
 
-app.get('/message', (req, res) => {
+app.get('/message', async (req, res) => {
     if (req.session.active){
-        res.render("pages/message")
+        userid = req.session.userid
+        doc = await util.isDoc(userid)
+        if (! req.query.room ){
+            if (doc){
+                list = await util.getPatients(userid)
+            } else {
+                list = await util.getDocs(userid)
+            }
+            return res.render('pages/contacts', {list: list, doc: doc, admin: parseInt(userid) == 0, self: userid})
+        }
+        else{
+            room = req.query.room
+            infos = await util.getName(userid)
+            return res.render("pages/message", {roomname: room, prenom: infos.prenom, nom: infos.nom})
+        }
+        
     }
     else{
         res.redirect('/login?forward=/message')
@@ -123,7 +142,6 @@ app.get("/portal", async (req, res) => {
         else{
             list = await util.getDocs(req.session.userid)
         }
-        console.log(req.query.numsecu)
         if (parseInt(req.query.numsecu) == 0)
         {
             documents = []
@@ -194,13 +212,13 @@ app.post('/add', async (req, res) => {
 })
 
 io.on('connection', (socket) => {
-    console.log('Utilisateur connecté')
+    socket.join(parseInt(room))
+
+    socket.on('join', (msg) => {
+        io.to(msg.room).emit('message', msg.msg)
+    })
 
     socket.on('message', (msg) => {
-        io.emit('message', msg)
+        io.to(parseInt(msg.room)).emit('message', msg.msg)
     })
-})
-
-app.listen(port, () => {
-    console.log(`Listening on port ${port}`)
 })

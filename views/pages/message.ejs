@@ -1,31 +1,48 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>Test chat</title>
-    </head>
 
-    <body>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/css/style.css">
+    <title>Test chat</title>
+</head>
+
+<body>
+    <%- include('../partials/navbar') %>
         <div id="conv"></div>
-        <form method="POST" action="/send">
-            <input type="text" id="msg" name="message" placeholder="Entrez votre message" required> 
-            <button>Send</button>
+        <form id="message-form">
+            <textarea type="text" id="msg-input" name="message" placeholder="Entrez votre message" rows="5"
+                required></textarea>
+            <button id="msg-button">Send</button>
         </form>
         <script src="/socket.io/socket.io.js"></script>
         <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
         <script>
+            $("#msg-input").keypress(function (e) {
+                if (e.which === 13 && !e.shiftKey) {
+                    e.preventDefault();
+
+                    $(this).closest("form").submit();
+                }
+            });
+            io().emit('message', { msg: '<%= prenom %> <%= nom %> joined the room.', room: '<%- roomname %>' })
             $(function () {
                 $('form').submit((e) => {
                     e.preventDefault()
-    
-                    io().emit('message', $('#msg').val())
+                    console.log($('#msg-input').val())
+                    io().emit('message', { msg: '<%= prenom %> <%= nom %> : ' + $('#msg-input').val(), room: '<%- roomname %>' })
+                    document.getElementById('msg-input').value = ""
                 })
-    
+
                 io().on('message', (msg => {
-                    $("#conv").append($("<p>").text(msg))
+                    for (ms of msg.split('\n')){
+                        $("#conv").append($("<p>").text(ms))
+                    }
+                    
                 }))
             })
         </script>
-    </body>
+</body>
+
 </html>

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+
+<body>
+  <h2></h2>
+  <% if (admin) { %>
+    <font size="20" color="#77b5fe" face=" Helvetica">Désigner Docteur</font>
+    <div class="tab">
+      <center>
+        <a href="/add"><i class="fa fa-plus"></i></a>
+      </center>
+      <% } else { %>
+        <font size="20" color="#77b5fe" face=" Helvetica">Liste des patients</font>
+        <div class="tab">
+          <center>
+            <font color="#77b5fe" size="6">Selectionner le patient</font>
+          </center>
+          <% }; %>
+
+            <% if (list) { %>
+              <% for (person of list) { %>
+                <% if(doc){ %>
+                <a href="/message?room=<%= person.numsecu %>-<%= self %>">
+                  <% }else{ %>
+                    <a href="/message?room=<%= self %>-<%= person.numsecu %>">
+                    <% }; %>
+                  <button class="tablinks">
+                    <%= person.nom %>
+                      <%= person.prenom %>
+                  </button>
+                </a><br />
+                <% }; %>
+                  <% }; %>
+        </div>
+
+
+</body>
+
+</html>
