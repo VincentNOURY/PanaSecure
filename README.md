@@ -18,5 +18,15 @@ Le compte avec le numéro de sécurité sociale 0 est le compte administrateur
 ### Docker
 
 ```bash
-docker build . -t panasecure && docker run -d --name=PanaSecure -p 3000:3000 -e db_user="" -e db_host="" -e db_database="" -e db_password="" -e db_port="" -e sessions_secret="" panasecure
+docker build . -t panasecure && docker run -d \
+    --name=PanaSecure \
+    -p 3000:3000 \
+    -e db_user="" \
+    -e db_host="" '
+    -e db_database="" \
+    -e db_password="" \
+    -e db_port="" \
+    -e sessions_secret="" \
+    -e salt="" \
+    panasecure
 ```
