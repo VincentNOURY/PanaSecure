@@ -22,7 +22,7 @@ docker build . -t panasecure && docker run -d \
     --name=PanaSecure \
     -p 3000:3000 \
     -e db_user="" \
-    -e db_host="" '
+    -e db_host="" \
     -e db_database="" \
     -e db_password="" \
     -e db_port="" \
