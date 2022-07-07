@@ -8,12 +8,12 @@
 
 <body>
   <h2></h2>
-  <% if (admin) { %>
-    <font size="20" color="#77b5fe" face=" Helvetica">Désigner Docteur</font>
-    <div class="tab">
-      <center>
-        <a href="/add"><i class="fa fa-plus"></i></a>
-      </center>
+  <% if (! doc) { %>
+    <font size="20" color="#77b5fe" face=" Helvetica">Liste des docteurs</font>
+        <div class="tab">
+          <center>
+            <font color="#77b5fe" size="6">Selectionner le docteur</font>
+          </center>
       <% } else { %>
         <font size="20" color="#77b5fe" face=" Helvetica">Liste des patients</font>
         <div class="tab">

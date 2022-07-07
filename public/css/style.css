@@ -259,7 +259,9 @@ tr:nth-child(even) {
 #conv {
     background-color: #b8e4d7;
     width: 60%;
-    display: flex;
+    border-radius: 20px;
+    padding-left: 0.5%;
+    padding-right: 0.5%;
     align-items: center;
     justify-content: center;
     margin: auto;

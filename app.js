@@ -32,7 +32,7 @@ app.use(sessions({
 var session
 
 app.get('/', (req, res) => {
-    res.render('pages/accueil')
+    res.render('pages/accueil', {active: req.session.active})
 })
 
 app.get('/login', async (req, res) => {
@@ -68,7 +68,7 @@ app.get('/login', async (req, res) => {
         }
     }
 
-    res.render("pages/login", {forward: req.query.forward})
+    res.render("pages/login", {forward: req.query.forward, active: req.session.active})
 })
 
 app.get('/signup', async (req, res) => {
@@ -84,7 +84,7 @@ app.get('/signup', async (req, res) => {
         return res.redirect('/signup')
         
     }
-    res.render('pages/sign_up')
+    res.render('pages/sign_up', {active: req.session.active})
 })
 
 app.get('/logout',(req, res) => {
@@ -106,12 +106,12 @@ app.get('/message', async (req, res) => {
             } else {
                 list = await util.getDocs(userid)
             }
-            return res.render('pages/contacts', {list: list, doc: doc, admin: parseInt(userid) == 0, self: userid})
+            return res.render('pages/contacts', {list: list, doc: doc, admin: parseInt(userid) == 0, self: userid, active: req.session.active})
         }
         else{
             room = req.query.room
             infos = await util.getName(userid)
-            return res.render("pages/message", {roomname: room, prenom: infos.prenom, nom: infos.nom})
+            return res.render("pages/message", {roomname: room, prenom: infos.prenom, nom: infos.nom, active: req.session.active})
         }
         
     }
@@ -150,7 +150,7 @@ app.get("/portal", async (req, res) => {
             documents = await util.getDocuments(parseInt(req.query.numsecu), req.session.userid)
         }
         sent = await util.getDocuments(req.session.userid, parseInt(req.query.numsecu))
-        res.render("pages/portal", {doc: await util.isDoc(req.session.userid), list: list, documents: documents, sent: sent, admin: parseInt(req.session.userid) == 0})
+        res.render("pages/portal", {doc: await util.isDoc(req.session.userid), list: list, documents: documents, sent: sent, active: req.session.active, admin: parseInt(req.session.userid) == 0})
     }
     else{
         res.redirect('/login?forward=/portal')
@@ -159,9 +159,15 @@ app.get("/portal", async (req, res) => {
 
 app.get("/download/:id", async (req, res) => {
     if (req.session.active){
-        res.type('pdf')
-        res.send(await util.getAESFile(req.params.id, req.session.userid))
-    }
+        file = await util.getAESFile(req.params.id, req.session.userid)
+        if (["jpg", "jpeg", "png"].includes(file[0].split('.')[file[0].split('.').length - 1])){
+            res.send(`<head><title>${file[0]}</title><body><img src="data:image/jpeg;base64,${file[1].toString('base64')}"></body>`)
+        }
+        else{
+            res.type('application/pdf')
+            res.send(file[1])
+        }
+        }
 })
 
 app.post('/upload', async (req, res) => {
@@ -195,7 +201,7 @@ app.post('/upload', async (req, res) => {
 
 app.get('/add', async (req, res) => {
     if (req.session.active){
-        return res.render('pages/add_patient', {doc: await util.isDoc(req.session.userid)})
+        return res.render('pages/add_patient', {doc: await util.isDoc(req.session.userid), active: req.session.active})
     }
     return res.redirect('/login?forward=/add')
 })

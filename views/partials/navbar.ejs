@@ -7,9 +7,13 @@
 
   <div class="icon-bar-nav">
     <a class="active-nav" href="/"><i class="fa fa-home"></i></a>
-    <a href="#"><i class="fa fa-search"></i></a>
     <a href="/message"><i class="fa fa-envelope"></i></a>
     <a href="/portal"><i class="fa fa-user-md"></i></a>
+    <% if(active){ %>
+      <a href="/logout"><i class="fa fa-sign-out"></i></a>
+      <% }else{ %>
+        <a href="/login"><i class="fa fa-user"></i></a>
+        <% }; %>
   </div>
 
 </body>

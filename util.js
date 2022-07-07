@@ -14,67 +14,70 @@ const options = {
 }
 
 const knex = require('knex')(options);
-const salt = process.env.salt
+const salt = /*process.env.salt || */readFile("config/config.json").salt
+const salt_files = /*process.env.salt_files || */readFile("config/config.json").salt_files
 
-function getSessionsSecret(){
+function getSessionsSecret() {
     return JSON.parse(fs.readFileSync("config/config.json")).sessions_secret
 }
 
-async function verify(numsecu, password){
+async function verify(numsecu, password) {
     password = hashPassword(password)
-    pass = await knex('users').where({numsecu: numsecu}).select('password').first()
+    pass = await knex('users').where({ numsecu: numsecu }).select('password').first().catch(err => console.log(err))
+    if (!pass) {
+        return false
+    }
     return pass.password == password
 }
 
-async function addDocTo(user, doc){
-    docs = (await knex('users').where({numsecu: user}).select('docs').first()).docs
-    if ( ! docs.includes(parseInt(doc)) ){
+async function addDocTo(user, doc) {
+    docs = (await knex('users').where({ numsecu: user }).select('docs').first()).docs
+    if (!docs.includes(parseInt(doc))) {
         docs.push(doc)
-        await knex('users').where({numsecu: user}).update({docs: docs})
+        await knex('users').where({ numsecu: user }).update({ docs: docs }).catch(err => console.log(err))
     }
-    patients = (await knex('users').where({numsecu: doc}).select('patients').first()).patients
-    if ( ! patients.includes(parseInt(user)) ){
+    patients = (await knex('users').where({ numsecu: doc }).select('patients').first()).patients
+    if (!patients.includes(parseInt(user))) {
         patients.push(user)
-        await knex('users').where({numsecu: doc}).update({patients: patients})
+        await knex('users').where({ numsecu: doc }).update({ patients: patients }).catch(err => console.log(err))
     }
 }
 
-async function getName(numsecu){
-    info = await knex('users').where({numsecu: numsecu}).select("prenom", "nom").first()
+async function getName(numsecu) {
+    info = await knex('users').where({ numsecu: numsecu }).select("prenom", "nom").first()
     return info
 }
 
-function readFile(path){
+function readFile(path) {
     return JSON.parse(fs.readFileSync(path))
 }
 
-async function getPatients(numsecu){
-    nums = (await knex('users').where({numsecu: numsecu}).select('patients').first()).patients
+async function getPatients(numsecu) {
+    nums = (await knex('users').where({ numsecu: numsecu }).select('patients').first()).patients
     list = []
-    for (num of nums){
-        list.push((await knex('users').where({numsecu: num}).select().first()))
+    for (num of nums) {
+        list.push((await knex('users').where({ numsecu: num }).select().first()))
     }
     return list
 }
 
-async function getDocs(numsecu){
-    nums = (await knex('users').where({numsecu: numsecu}).select('docs').first()).docs
+async function getDocs(numsecu) {
+    nums = (await knex('users').where({ numsecu: numsecu }).select('docs').first()).docs
     list = []
-    for (num of nums){
-        list.push((await knex('users').where({numsecu: num}).select().first()))
+    for (num of nums) {
+        list.push((await knex('users').where({ numsecu: num }).select().first()))
     }
     return list
 }
 
-async function addUser(data){
+async function addUser(data) {
     data['isdoc'] = false
     data['docs'] = []
     data['patients'] = []
     let test = false
     data.password = hashPassword(data.password)
-    console.log(data.password)
-    await knex('users').insert(data).then(data => {test = true}).catch(err => {test = false; console.log(err)})
-    fs.mkdir(path.join(__dirname, 'download', JSON.stringify(parseInt(data.numsecu))), (err) => {if (err) {return console.error(err)}})
+    await knex('users').insert(data).then(data => { test = true }).catch(err => { test = false; console.log(err) })
+    fs.mkdir(path.join(__dirname, 'download', JSON.stringify(parseInt(data.numsecu))), (err) => { if (err) { return console.error(err) } })
     return test
 }
 
@@ -84,35 +87,35 @@ function hashPassword(password) {
     return pwd.digest().toHex()
 }
 
-async function getDocNames(){
-    return await knex('users').where({isdoc: true}).first()
+async function getDocNames() {
+    return await knex('users').where({ isdoc: true }).first()
 }
 
-async function getDocuments(exp, numsecu){
-    return await knex('files').where({dest: numsecu, exp: exp})
+async function getDocuments(exp, numsecu) {
+    return await knex('files').where({ dest: numsecu, exp: exp })
 }
 
-async function makeDoc(numsecu){
+async function makeDoc(numsecu) {
     result = false;
-    await knex('users').where({numsecu: numsecu}).update({isdoc: true, patients: []}).then(data => {result = true}).catch(err => {tesult = false; console.log(err)})
+    await knex('users').where({ numsecu: numsecu }).update({ isdoc: true, patients: [] }).then(data => { result = true }).catch(err => { tesult = false; console.log(err) })
     return result
 }
 
-async function isDoc(numsecu){
-    return (await knex('users').where({numsecu: numsecu}).select("isdoc").first()).isdoc
+async function isDoc(numsecu) {
+    return (await knex('users').where({ numsecu: numsecu }).select("isdoc").first()).isdoc
 }
 
 
 function isIterable(obj) {
     if (obj == null) {
-      return false
+        return false
     }
     return typeof obj[Symbol.iterator] === 'function'
-  }
+}
 
-async function writeUpload(name_rec, data, dest, md5, AES_key, exp){
+async function writeUpload(name_rec, data, dest, md5, AES_key, exp) {
     name_file = name_rec
-    if (fs.existsSync(`download/${dest}/${name_file}`)){
+    if (fs.existsSync(`download/${dest}/${name_file}`)) {
         cp = 0
         do {
             cp += 1
@@ -120,31 +123,35 @@ async function writeUpload(name_rec, data, dest, md5, AES_key, exp){
             name_file = name_temp.slice(0, name_temp.length - 1) + " - " + cp + "." + name_temp[name_temp.length - 1]
         } while (fs.existsSync(`download/${dest}/${name_file}`))
     }
-    
+
     fs.writeFileSync(`download/${dest}/${name_file}`, data, "hex")
     result = false
-    await knex('files').insert({name: name_file, path: `${dest}/${name_file}`, md5: md5, dest: dest, exp: exp, key: JSON.stringify(AES_key)})
-    .then(data => {result = true}).catch(err => {result = false; console.log(err)})
+    await knex('files').insert({ name: name_file, path: `${dest}/${name_file}`, md5: md5, dest: dest, exp: exp, key: JSON.stringify(AES_key) })
+        .then(data => { result = true }).catch(err => { result = false; console.log(err) })
     return result
 }
 
-async function getAESFile(id, numsecu){
-    file = await knex('files').where({id: id}).select().first()
-    if (numsecu == file.dest || numsecu == file.exp){
+async function getAESFile(id, numsecu) {
+    file = await knex('files').where({ id: id }).select().first()
+    if (numsecu == file.dest || numsecu == file.exp) {
         key = JSON.parse(file.key)
-        md5 = file.md5
         data = fs.readFileSync("download/" + file.path, "hex")
-        return AES_dec(data, key['key'], key['iv'])
+        dec_file = AES_dec(data, key['key'], key['iv'])
+        return [file.name, dec_file]
     }
 
 }
 
-module.exports = {getSessionsSecret, makeDoc, getName, addDocTo, isDoc, getAESFile, verify, addUser, isIterable, getPatients, getDocs, writeUpload, getDocuments, RSA_generateKeyPair, RSA_encrypt, RSA_decrypt, getDocNames, AES_enc, AES_dec, AES_genKey} // AES_generateKey, AES_encrypt, AES_decrypt,
+function cypherkey(key){
+
+}
+
+module.exports = { getSessionsSecret, makeDoc, getName, addDocTo, isDoc, getAESFile, verify, addUser, isIterable, getPatients, getDocs, writeUpload, getDocuments, RSA_generateKeyPair, RSA_encrypt, RSA_decrypt, getDocNames, AES_enc, AES_dec, AES_genKey } // AES_generateKey, AES_encrypt, AES_decrypt,
 
 // generate an RSA key pair asynchronously
 function RSA_generateKeyPair() {
     var rsa = forge.pki.rsa
-    var keypair = rsa.generateKeyPair({bits: 2048, workers: 2}, function(err, keypair) {
+    var keypair = rsa.generateKeyPair({ bits: 2048, workers: 2 }, function (err, keypair) {
         // keypair.privateKey, keypair.publicKey
     });
     return keypair
@@ -192,8 +199,8 @@ function AES_enc(text, key, iv) {
     let encrypted = cipher.update(text);
     encrypted = Buffer.concat([encrypted, cipher.final()]);
     return { iv: iv.toString('hex'), encryptedData: encrypted.toString('hex') };
-   }
-   
+}
+
 function AES_dec(text, key, iv) {
     var crypto = require('crypto');
     iv = Buffer.from(iv, 'hex');
@@ -205,15 +212,15 @@ function AES_dec(text, key, iv) {
     return decrypted;
 }
 
-function AES_genKey(){
+function AES_genKey() {
     var crypto = require('crypto');
     const key = crypto.randomBytes(32);
     const iv = crypto.randomBytes(16);
-    return {key: key, iv: iv}
+    return { key: key, iv: iv }
 }
 
 // To use in /signup to generate static ECDH key pair for any new account, and upload public key on server
-function ECDH_genKeyPair(){
+function ECDH_genKeyPair() {
     var crypto = require('crypto');
     // Creating ECDH with curve name
     var ecdh = crypto.createECDH('secp521r1');
@@ -221,7 +228,7 @@ function ECDH_genKeyPair(){
 
     // Prints Public key
     // console.log("Public Key: ", ecdh.getPublicKey());
-  
+
     // Prints Private Key
     // console.log("Private Key :", ecdh.getPrivateKey());
 
