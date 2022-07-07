@@ -15,8 +15,8 @@ const options = {
 }
 
 const knex = require('knex')(options);
-const salt = /*process.env.salt || */readFile("config/config.json").salt
-const salt_files = /*process.env.salt_files || */readFile("config/config.json").salt_files
+const salt = process.env.salt || readFile("config/config.json").salt
+const salt_files = process.env.salt_files || readFile("config/config.json").salt_files
 
 function getSessionsSecret() {
     return JSON.parse(fs.readFileSync("config/config.json")).sessions_secret
