@@ -290,3 +290,17 @@ tr:nth-child(even) {
     padding: 1%;
     margin-left: 2%;
 }
+
+/* Page chat */
+#form-portal {
+    background-color: rgb(161, 210, 236);
+    width: 40%;
+    align-items: center;
+    justify-content: center;
+    margin: auto;
+    text-align: center;
+}
+
+#file-password {
+    margin-bottom: 1%;
+}
