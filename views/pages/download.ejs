@@ -1,0 +1,35 @@
+<head>
+    <title>Connexion </title>
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="/css/style2.css" />
+
+</head>
+
+<body>
+    <%- include('../partials/navbar') %>
+        <div class="overlay">
+            <div class="form-main">
+                <div class="con">
+                    <header class="head-form">
+                        <h2>Déchiffrement</h2>
+                    </header>
+                    <br>
+                    <div class="field-set">
+                        <form action="/download/<%= id %>" method="POST">
+                            <!--   Password -->
+                            <span class="input-item">
+                                <i class="fa fa-key"></i>
+                            </span>
+                            <!--   Password Input-->
+                            <input class="form-input" type="password" placeholder="Mot de passe" id="pwd"
+                                name="password" name="password" required>
+                            <br>
+                            <br>
+                            <!--        buttons -->
+                            <button class="log-in" type="submit">Déchiffrer</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+</body>

@@ -157,17 +157,35 @@ app.get("/portal", async (req, res) => {
     }
 })
 
-app.get("/download/:id", async (req, res) => {
+app.get('/download/:id', async (req, res) => {
     if (req.session.active){
-        file = await util.getAESFile(req.params.id, req.session.userid)
-        if (["jpg", "jpeg", "png"].includes(file[0].split('.')[file[0].split('.').length - 1])){
-            res.send(`<head><title>${file[0]}</title><body><img src="data:image/jpeg;base64,${file[1].toString('base64')}"></body>`)
+        res.render('pages/download', {id: req.params.id, active: req.session.active})
+    }
+    else{
+        res.redirect('/login')
+    }
+})
+
+app.post("/download/:id", async (req, res) => {
+    if (req.session.active){
+        file = await util.getAESFile(req.params.id, req.session.userid, req.body.password)
+        if (file.length == 0){
+            return res.redirect(`/download/${req.params.id}`)
         }
         else{
-            res.type('application/pdf')
-            res.send(file[1])
+            if (["jpg", "jpeg", "png"].includes(file[0].split('.')[file[0].split('.').length - 1])){
+                res.send(`<head><title>${file[0]}</title><body><img src="data:image/jpeg;base64,${file[1].toString('base64')}"></body>`)
+            }
+            else{
+                res.type('application/pdf')
+                res.send(file[1])
+            }
         }
-        }
+        
+    }
+    else{
+        res.redirect('/login')
+    }
 })
 
 app.post('/upload', async (req, res) => {
@@ -181,14 +199,14 @@ app.post('/upload', async (req, res) => {
                     EAS_key = util.AES_genKey()
                     data = util.AES_enc(file.data, EAS_key["key"], EAS_key["iv"])
                     EAS_key.iv = data.iv
-                    util.writeUpload(file.name, data.encryptedData, req.body.person, file.md5, EAS_key, req.session.userid)
+                    util.writeUpload(file.name, data.encryptedData, req.body.person, file.md5, EAS_key, req.session.userid, req.body.password)
                 }
             }
             else{
                 EAS_key = util.AES_genKey()
                 data = util.AES_enc(req.files.uploads.data, EAS_key["key"], EAS_key["iv"])
                 EAS_key.iv = data.iv
-                util.writeUpload(req.files.uploads.name, data.encryptedData, req.body.person, req.files.uploads.md5, EAS_key, req.session.userid)
+                util.writeUpload(req.files.uploads.name, data.encryptedData, req.body.person, req.files.uploads.md5, EAS_key, req.session.userid, req.body.password)
             }
             
         }

@@ -1,6 +1,7 @@
 const fs = require('fs')
 const forge = require('node-forge')
 const path = require('path')
+const crypto = require('crypto')
 let postgressdata = readFile("config/config.json").postgresdata
 const options = {
     client: 'pg',
@@ -113,7 +114,7 @@ function isIterable(obj) {
     return typeof obj[Symbol.iterator] === 'function'
 }
 
-async function writeUpload(name_rec, data, dest, md5, AES_key, exp) {
+async function writeUpload(name_rec, data, dest, md5, AES_key, exp, password) {
     name_file = name_rec
     if (fs.existsSync(`download/${dest}/${name_file}`)) {
         cp = 0
@@ -123,30 +124,52 @@ async function writeUpload(name_rec, data, dest, md5, AES_key, exp) {
             name_file = name_temp.slice(0, name_temp.length - 1) + " - " + cp + "." + name_temp[name_temp.length - 1]
         } while (fs.existsSync(`download/${dest}/${name_file}`))
     }
-
     fs.writeFileSync(`download/${dest}/${name_file}`, data, "hex")
     result = false
-    await knex('files').insert({ name: name_file, path: `${dest}/${name_file}`, md5: md5, dest: dest, exp: exp, key: JSON.stringify(AES_key) })
+    await knex('files').insert({ name: name_file, path: `${dest}/${name_file}`, md5: md5, dest: dest, exp: exp, key: cypherKey(JSON.stringify(AES_key), password) })
         .then(data => { result = true }).catch(err => { result = false; console.log(err) })
     return result
 }
 
-async function getAESFile(id, numsecu) {
+async function getAESFile(id, numsecu, password) {
     file = await knex('files').where({ id: id }).select().first()
     if (numsecu == file.dest || numsecu == file.exp) {
-        key = JSON.parse(file.key)
+        key = decypherKey(file.key, password).toString().replace(/\\n/g, "\\n")  
+        .replace(/\\'/g, "\\'")
+        .replace(/\\"/g, '\\"')
+        .replace(/\\&/g, "\\&")
+        .replace(/\\r/g, "\\r")
+        .replace(/\\t/g, "\\t")
+        .replace(/\\b/g, "\\b")
+        .replace(/\\f/g, "\\f")
+        .replace(/[\u0000-\u0019]+/g,"")
+        try{
+            key = JSON.parse(key.toString().trim())
+        }
+        catch (e){
+            return []
+        }
+        
         data = fs.readFileSync("download/" + file.path, "hex")
-        dec_file = AES_dec(data, key['key'], key['iv'])
+        dec_file = AES_dec(data, key['key'], Buffer.from(key['iv'], 'hex'))
         return [file.name, dec_file]
     }
-
 }
 
-function cypherkey(key){
-
+function cypherKey(key, password){
+    let pwd = forge.md.sha256.create()
+    pwd.update(salt_files + password)
+    return JSON.stringify(AES_enc(key, pwd.digest().toHex().substring(0, 32), pwd.digest().toHex().substring(0, 16)))
 }
 
-module.exports = { getSessionsSecret, makeDoc, getName, addDocTo, isDoc, getAESFile, verify, addUser, isIterable, getPatients, getDocs, writeUpload, getDocuments, RSA_generateKeyPair, RSA_encrypt, RSA_decrypt, getDocNames, AES_enc, AES_dec, AES_genKey } // AES_generateKey, AES_encrypt, AES_decrypt,
+function decypherKey(key, password){
+    key = JSON.parse(key)
+    let pwd = forge.md.sha256.create()
+    pwd.update(salt_files + password)
+    return AES_dec(key.encryptedData, pwd.digest().toHex().substring(0, 32), key.iv)
+}
+
+module.exports = { getSessionsSecret, makeDoc, getName, cypherKey, decypherKey, addDocTo, isDoc, getAESFile, verify, addUser, isIterable, getPatients, getDocs, writeUpload, getDocuments, RSA_generateKeyPair, RSA_encrypt, RSA_decrypt, getDocNames, AES_enc, AES_dec, AES_genKey } // AES_generateKey, AES_encrypt, AES_decrypt,
 
 // generate an RSA key pair asynchronously
 function RSA_generateKeyPair() {
@@ -167,34 +190,7 @@ function RSA_decrypt(ciphertext, privateKey) {
     return plaintext
 }
 
-/*function AES_generateKey() {
-    var key = forge.random.getBytesSync(16);
-    var iv = forge.random.getBytesSync(16);
-    return ({key, iv})
-}
-
-function AES_encrypt(plaintext, key, iv) {
-    var cipher = forge.cipher.createCipher('AES-CBC', key);
-    cipher.start({iv: iv});
-    cipher.update(forge.util.createBuffer(plaintext));
-    cipher.finish();
-
-    var ciphertext = cipher.output;
-    return ciphertext
-}
-
-function AES_decrypt(ciphertext, key, iv) {
-    var decipher = forge.cipher.createDecipher('AES-CBC', key);
-    decipher.start({iv: iv});
-    decipher.update(ciphertext);
-    var result = decipher.finish(); // check 'result' for true/false
-
-    var plaintext = decipher.output;
-    return plaintext
-}*/
-
 function AES_enc(text, key, iv) {
-    var crypto = require('crypto');
     let cipher = crypto.createCipheriv('aes-256-cbc', Buffer.from(key), iv);
     let encrypted = cipher.update(text);
     encrypted = Buffer.concat([encrypted, cipher.final()]);
@@ -202,8 +198,7 @@ function AES_enc(text, key, iv) {
 }
 
 function AES_dec(text, key, iv) {
-    var crypto = require('crypto');
-    iv = Buffer.from(iv, 'hex');
+    //iv = Buffer.from(iv, 'hex');
     let encryptedText = Buffer.from(text, 'hex');
     let decipher = crypto.createDecipheriv('aes-256-cbc', Buffer.from(key), iv);
     decipher.setAutoPadding(false);
@@ -213,7 +208,6 @@ function AES_dec(text, key, iv) {
 }
 
 function AES_genKey() {
-    var crypto = require('crypto');
     const key = crypto.randomBytes(32);
     const iv = crypto.randomBytes(16);
     return { key: key, iv: iv }
