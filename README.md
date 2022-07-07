@@ -28,5 +28,6 @@ docker build . -t panasecure && docker run -d \
     -e db_port="" \
     -e sessions_secret="" \
     -e salt="" \
+    -e salt_files="" \
     panasecure
 ```

@@ -6,6 +6,7 @@ ENV db_database ""
 ENV db_password ""
 ENV db_port 5432
 ENV salt ""
+ENV salt_files ""
 WORKDIR /app
 COPY . /app
 RUN mkdir download config
