@@ -96,6 +96,19 @@ app.get('/logout',(req, res) => {
 
   })
 
+
+app.get('/delete/:id', async (req, res) => {
+    if (req.session.active){
+        if (util.isExp(req.params.id, req.session.userid)){
+            await util.delFile(req.params.id)
+            res.redirect('/portal')
+        }
+    }
+    else{
+        res.redirect('/login')
+    }
+})
+
 app.get('/message', async (req, res) => {
     if (req.session.active){
         userid = req.session.userid

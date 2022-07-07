@@ -62,6 +62,11 @@ async function getPatients(numsecu) {
     return list
 }
 
+async function isExp(id, numsecu){
+    nums = (await knex('files').where({id: id}).select('exp'))
+    return numsecu == nums.exp
+}
+
 async function getDocs(numsecu) {
     nums = (await knex('users').where({ numsecu: numsecu }).select('docs').first()).docs
     list = []
@@ -169,7 +174,15 @@ function decypherKey(key, password){
     return AES_dec(key.encryptedData, pwd.digest().toHex().substring(0, 32), key.iv)
 }
 
-module.exports = { getSessionsSecret, makeDoc, getName, cypherKey, decypherKey, addDocTo, isDoc, getAESFile, verify, addUser, isIterable, getPatients, getDocs, writeUpload, getDocuments, RSA_generateKeyPair, RSA_encrypt, RSA_decrypt, getDocNames, AES_enc, AES_dec, AES_genKey } // AES_generateKey, AES_encrypt, AES_decrypt,
+async function delFile(id){
+    let path_file = "download/" + (await knex('files').where({id: id}).select("path").first()).path
+    if (fs.existsSync(path_file)){
+        fs.rm(path_file, (err => {console.log(err)}))
+    }
+    await knex('files').where({id: id}).del()
+}
+
+module.exports = { getSessionsSecret, makeDoc, isExp, getName, delFile, cypherKey, decypherKey, addDocTo, isDoc, getAESFile, verify, addUser, isIterable, getPatients, getDocs, writeUpload, getDocuments, RSA_generateKeyPair, RSA_encrypt, RSA_decrypt, getDocNames, AES_enc, AES_dec, AES_genKey } // AES_generateKey, AES_encrypt, AES_decrypt,
 
 // generate an RSA key pair asynchronously
 function RSA_generateKeyPair() {
