@@ -78,8 +78,8 @@ async function getDocs(numsecu) {
 
 async function addUser(data) {
     data['isdoc'] = false
-    data['docs'] = []
-    data['patients'] = []
+    data['docs'] = {}
+    data['patients'] = {}
     let test = false
     data.password = hashPassword(data.password)
     await knex('users').insert(data).then(data => { test = true }).catch(err => { test = false; console.log(err) })
